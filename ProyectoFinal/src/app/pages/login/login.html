@@ -1,1 +1,38 @@
-<p>login works!</p>
+<div class="contenedor">
+
+  <h2>Iniciar sesión</h2>
+
+  <form (ngSubmit)="iniciarSesion()">
+
+    <input
+      type="email"
+      name="correo"
+      placeholder="Correo electrónico"
+      [(ngModel)]="correo"
+      required
+    >
+
+    <input
+      type="password"
+      name="password"
+      placeholder="Contraseña"
+      [(ngModel)]="password"
+      required
+    >
+
+    @if (error) {
+      <p class="error">{{ error }}</p>
+    }
+
+    <button type="submit" [disabled]="cargando">
+      {{ cargando ? 'Ingresando...' : 'Iniciar sesión' }}
+    </button>
+
+  </form>
+
+  <p>
+    ¿No tienes cuenta?
+    <a routerLink="/registro">Registrarse</a>
+  </p>
+
+</div>
