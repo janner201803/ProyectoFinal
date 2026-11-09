@@ -1,38 +1,128 @@
-<div class="contenedor">
+<div class="pagina">
 
-  <h2>Iniciar sesión</h2>
+  <section class="lado-info">
 
-  <form (ngSubmit)="iniciarSesion()">
+    <header class="marca">
+      <img src="img/logo.png" alt="UAO">
+      <b></b>
+      <p>Universidad Autónoma<br>de Occidente</p>
+    </header>
 
-    <input
-      type="email"
-      name="correo"
-      placeholder="Correo electrónico"
-      [(ngModel)]="correo"
-      required
-    >
+    <div class="mensaje">
+      <p class="lema">
+        Conecta <i></i> Participa <i></i> Disfruta
+      </p>
 
-    <input
-      type="password"
-      name="password"
-      placeholder="Contraseña"
-      [(ngModel)]="password"
-      required
-    >
+      <h1>
+        Tu campus
+        <span>más cerca de ti</span>
+      </h1>
 
-    @if (error) {
-      <p class="error">{{ error }}</p>
-    }
+      <p class="descripcion">
+        Encuentra servicios, publica objetos perdidos, consulta eventos y conéctate con otros estudiantes.
+      </p>
+    </div>
 
-    <button type="submit" [disabled]="cargando">
-      {{ cargando ? 'Ingresando...' : 'Iniciar sesión' }}
-    </button>
+    <ul class="iconos">
+      <li>
+        <div class="caja">
+          <svg class="ico" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        </div>
+        <span>Servicios</span>
+      </li>
+      <li>
+        <div class="caja">
+          <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <span>Objetos Perdidos</span>
+      </li>
+      <li>
+        <div class="caja">
+          <svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <span>Eventos</span>
+      </li>
+      <li>
+        <div class="caja">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <span>Chat</span>
+      </li>
+      <li>
+        <div class="caja">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <span>Mapa</span>
+      </li>
+    </ul>
 
-  </form>
+    <div class="foto">
+      <img src="img/campus.webp" alt="Campus Universidad Autónoma de Occidente">
+    </div>
 
-  <p>
-    ¿No tienes cuenta?
-    <a routerLink="/registro">Registrarse</a>
-  </p>
+  </section>
+
+  <section class="lado-form">
+    <span class="forma"></span>
+
+    <div class="contenedor">
+
+      <img src="img/ilustración.png" alt="" class="ilustracion">
+
+      <h2>¡Bienvenido de nuevo!</h2>
+
+      <form (ngSubmit)="iniciarSesion()">
+
+        <div class="campo">
+          <svg class="ico ico-campo" viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <input
+            type="email"
+            name="correo"
+            placeholder="Correo institucional"
+            [(ngModel)]="correo"
+            required
+          >
+        </div>
+
+        <div class="campo">
+          <svg class="ico ico-campo" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input
+            #clave
+            type="password"
+            name="password"
+            placeholder="Contraseña"
+            [(ngModel)]="password"
+            required
+          >
+          <button
+            type="button"
+            class="ver"
+            aria-label="Mostrar u ocultar contraseña"
+            (click)="clave.type = clave.type === 'password' ? 'text' : 'password'"
+          >
+            <svg class="ico" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+
+        @if (error) {
+          <p class="error">{{ error }}</p>
+        }
+
+        <button type="submit" class="principal" [disabled]="cargando">
+          {{ cargando ? 'Ingresando...' : 'Iniciar sesión' }}
+          @if (!cargando) {
+            <svg class="ico" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          }
+        </button>
+
+      </form>
+
+      <p class="registro">
+        ¿No tienes una cuenta?
+        <a routerLink="/registro">Crea una cuenta</a>
+      </p>
+
+    </div>
+  </section>
 
 </div>
