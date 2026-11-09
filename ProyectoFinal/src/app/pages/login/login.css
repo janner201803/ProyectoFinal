@@ -189,10 +189,22 @@ h1 span {
 
 .forma {
   position: absolute;
-  width: 60vh;
-  height: 60vh;
-  right: -28vh;
-  top: -34vh;
+  width: 42vh;
+  height: 42vh;
+  right: -20vh;
+  top: -24vh;
+  border-radius: 50%;
+  background: var(--azul);
+  pointer-events: none;
+}
+
+.lado-form::after {
+  content: '';
+  position: absolute;
+  width: 42vh;
+  height: 42vh;
+  left: -20vh;
+  bottom: -24vh;
   border-radius: 50%;
   background: var(--azul);
   pointer-events: none;

@@ -45,15 +45,26 @@
 
 .forma {
   position: absolute;
-  width: 55vh;
-  height: 55vh;
-  left: -26vh;
-  bottom: -30vh;
+  width: 42vh;
+  height: 42vh;
+  left: -20vh;
+  bottom: -24vh;
   border-radius: 50%;
   background: var(--azul);
   pointer-events: none;
 }
 
+.lado-form::after {
+  content: '';
+  position: absolute;
+  width: 42vh;
+  height: 42vh;
+  right: -20vh;
+  top: -24vh;
+  border-radius: 50%;
+  background: var(--azul);
+  pointer-events: none;
+}
 .marca {
   position: relative;
   z-index: 1;
