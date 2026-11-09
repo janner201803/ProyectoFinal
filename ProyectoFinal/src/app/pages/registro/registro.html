@@ -1,42 +1,98 @@
-<div class="contenedor">
+<div class="pagina">
 
-  <h2>Crear cuenta</h2>
+  <section class="lado-form">
+    <span class="forma"></span>
 
-  <form (ngSubmit)="registrar()">
+    <header class="marca">
+      <img src="img/logo.png" alt="UAO">
+      <b></b>
+      <p>Universidad Autónoma<br>de Occidente</p>
+    </header>
 
-    <input
-      type="email"
-      name="correo"
-      placeholder="Correo electrónico"
-      [(ngModel)]="correo"
-      required
-    >
+    <div class="contenedor">
 
-    <input
-      type="password"
-      name="password"
-      placeholder="Contraseña"
-      [(ngModel)]="password"
-      required
-    >
+      <div class="encabezado">
+        <h2>Crea tu cuenta</h2>
+        <p class="subtitulo">Ingresa tu correo institucional y elige una contraseña.</p>
+      </div>
 
-    @if (error) {
-      <p class="error">{{ error }}</p>
-    }
+      <form (ngSubmit)="registrar()">
 
-    @if (mensaje) {
-      <p class="mensaje">{{ mensaje }}</p>
-    }
+        <div class="campo">
+          <svg class="ico ico-campo" viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <input
+            type="email"
+            name="correo"
+            placeholder="Correo institucional"
+            [(ngModel)]="correo"
+            required
+          >
+        </div>
 
-    <button type="submit" [disabled]="cargando">
-      {{ cargando ? 'Registrando...' : 'Registrarse' }}
-    </button>
+        <div class="campo">
+          <svg class="ico ico-campo" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input
+            #clave
+            type="password"
+            name="password"
+            placeholder="Contraseña"
+            [(ngModel)]="password"
+            required
+          >
+          <button
+            type="button"
+            class="ver"
+            aria-label="Mostrar u ocultar contraseña"
+            (click)="clave.type = clave.type === 'password' ? 'text' : 'password'"
+          >
+            @if (clave.type === 'password') {
+              <svg class="ico" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            } @else {
+              <svg class="ico" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            }
+          </button>
+        </div>
 
-  </form>
+        @if (error) {
+          <p class="error">{{ error }}</p>
+        }
 
-  <p>
-    ¿Ya tienes cuenta?
-    <a routerLink="/login">Iniciar sesión</a>
-  </p>
+        <button type="submit" class="principal" [disabled]="cargando">
+          {{ cargando ? 'Creando cuenta...' : 'Crear cuenta' }}
+          @if (!cargando) {
+            <svg class="ico" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          }
+        </button>
+
+      </form>
+
+      <p class="login-link">
+        ¿Ya tienes una cuenta?
+        <a routerLink="/login">Inicia sesión</a>
+      </p>
+
+    </div>
+  </section>
+
+    <section class="lado-info">
+
+    <div class="mensaje">
+      <h1>
+        Únete a <span>Uao Vibe</span>
+      </h1>
+
+      <p class="frase">Tu campus, <b>más cerca de ti</b></p>
+
+    </div>
+
+    <ul class="etiquetas">
+      <li>Servicios</li>
+      <li>Objetos perdidos</li>
+      <li>Eventos</li>
+      <li>Chat</li>
+      <li>Mapa del campus</li>
+    </ul>
+
+  </section>
 
 </div>
