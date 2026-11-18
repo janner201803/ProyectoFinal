@@ -1,13 +1,188 @@
-<div class="inicio">
+<div class="app">
+  <aside class="lateral">
+    <div class="marca">
+      <img class="marca-logo" src="img/logo.png" alt="UAO" />
+      <span class="marca-linea"></span>
+      <span class="marca-nombre">UniConnect</span>
+    </div>
 
-  <h1>Bienvenido</h1>
+    <nav class="menu" aria-label="Navegación principal">
+      @for (item of menu; track item.etiqueta) {
+        <button type="button" class="menu-item" [class.activo]="item.activo" (click)="ejecutar(item.accion)">
+          <app-icono [nombre]="item.icono" />
+          <span>{{ item.etiqueta }}</span>
+        </button>
+      }
+    </nav>
 
-  <p>Has iniciado sesión correctamente.</p>
+    <div class="menu-salir">
+      <button type="button" class="menu-item" (click)="cerrarSesion()">
+        <app-icono nombre="salir" />
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
 
-  <p>Correo: {{ correo }}</p>
+    <div class="lateral-arco" aria-hidden="true"></div>
+  </aside>
 
-  <button (click)="cerrarSesion()">
-    Cerrar sesión
+  <div class="principal">
+    <header class="barra">
+      <label class="buscador">
+        <app-icono nombre="buscar" />
+        <input type="search" placeholder="Buscar servicios, eventos..." aria-label="Buscar" />
+      </label>
+
+      <div class="barra-acciones">
+        <button class="campana" type="button" aria-label="Notificaciones">
+          <app-icono nombre="campana" />
+          <span class="campana-punto"></span>
+        </button>
+        <button class="usuario" type="button">
+          <span class="avatar">{{ iniciales }}</span>
+          <span class="usuario-nombre">{{ correo || nombre }}</span>
+          <app-icono nombre="abajo" />
+        </button>
+      </div>
+    </header>
+
+    <main class="contenido">
+      <section class="hero">
+        <div class="hero-texto">
+          <h1>¡Hola, {{ nombre }}! <span class="saludo">👋</span></h1>
+          <p>Conecta, comparte y aprovecha todo lo que UniConnect tiene para ti.</p>
+          <button type="button" class="boton boton-primario">
+            Explorar servicios
+            <app-icono nombre="flecha" />
+          </button>
+        </div>
+        <div class="hero-imagen">
+          <img src="img/campus.webp" alt="Edificio del campus UAO" />
+        </div>
+        <span class="hero-onda hero-onda-roja" aria-hidden="true"></span>
+        <span class="hero-onda hero-onda-azul" aria-hidden="true"></span>
+      </section>
+
+      <section class="accesos" aria-label="Accesos rápidos">
+        @for (acceso of accesos; track acceso.etiqueta) {
+          <button type="button" class="acceso" (click)="ejecutar(acceso.accion)">
+            <span class="acceso-icono"><app-icono [nombre]="acceso.icono" /></span>
+            <span class="acceso-texto">{{ acceso.etiqueta }}</span>
+            <app-icono nombre="derecha" />
+          </button>
+        }
+      </section>
+
+      <section class="paneles">
+        <article class="panel">
+          <header class="panel-cabecera">
+            <h2>Próximos Eventos</h2>
+            <button type="button" class="ver-todos">
+              Ver todos
+              <app-icono nombre="flecha" />
+            </button>
+          </header>
+
+          @let evento = eventos[eventoActual];
+          <div class="evento">
+            <div class="evento-imagen">
+              <app-icono nombre="calendario" />
+            </div>
+            <div class="evento-info">
+              <h3>{{ evento.titulo }}</h3>
+              <p class="dato"><app-icono nombre="calendario" /> {{ evento.fecha }}</p>
+              <p class="dato"><app-icono nombre="mapa" /> {{ evento.lugar }}</p>
+              <div class="evento-pie">
+                <span class="etiqueta etiqueta-azul">{{ evento.categoria }}</span>
+                <button class="boton boton-primario boton-chico" type="button">Inscribirme</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="puntos">
+            @for (e of eventos; track e.titulo; let i = $index) {
+              <button
+                type="button"
+                class="punto"
+                [class.activo]="i === eventoActual"
+                [attr.aria-label]="'Ver evento ' + (i + 1)"
+                (click)="seleccionarEvento(i)"
+              ></button>
+            }
+          </div>
+        </article>
+
+        <article class="panel">
+          <header class="panel-cabecera">
+            <h2>Objetos Perdidos Recientes</h2>
+            <button type="button" class="ver-todos">
+              Ver todos
+              <app-icono nombre="flecha" />
+            </button>
+          </header>
+
+          <ul class="objetos">
+            @for (objeto of objetos; track objeto.nombre) {
+              <li class="objeto">
+                <div class="objeto-imagen">
+                  <app-icono nombre="buscar" />
+                </div>
+                <div class="objeto-info">
+                  <h3>{{ objeto.nombre }}</h3>
+                  <p>{{ objeto.detalle }}</p>
+                  <p class="dato"><app-icono nombre="reloj" /> {{ objeto.tiempo }}</p>
+                </div>
+                <span class="etiqueta" [class.etiqueta-azul]="objeto.estado === 'Encontrado'" [class.etiqueta-roja]="objeto.estado === 'Perdido'">
+                  {{ objeto.estado }}
+                </span>
+                <app-icono nombre="derecha" />
+              </li>
+            }
+          </ul>
+        </article>
+      </section>
+
+      <aside class="derecha">
+        <article class="panel actividad">
+          <header class="panel-cabecera">
+            <h2>Tu Actividad</h2>
+          </header>
+          <ul class="actividad-lista">
+            @for (item of actividad; track item.texto) {
+              <li>
+                <span class="actividad-icono" [class.azul]="item.tono === 'azul'" [class.rojo]="item.tono === 'rojo'">
+                  <app-icono [nombre]="item.icono" />
+                </span>
+                <span>{{ item.texto }}</span>
+              </li>
+            }
+          </ul>
+        </article>
+
+        <article class="ayuda">
+          <img class="ayuda-imagen" src="img/mapaCampus.jpg" alt="Mapa del campus UAO" />
+          <div class="ayuda-cuerpo">
+            <h3>¿Necesitas ayuda?</h3>
+            <p>Consulta nuestro mapa del campus</p>
+            <button type="button" class="boton boton-secundario" (click)="abrirMapa()">
+              Ver mapa
+              <app-icono nombre="flecha" />
+            </button>
+          </div>
+        </article>
+      </aside>
+    </main>
+
+    <footer class="pie">
+      <div class="pie-marca">
+        <img class="marca-logo" src="img/logo.png" alt="UAO" />
+        <span class="marca-linea"></span>
+        <span class="pie-universidad">Universidad Autónoma<br />de Occidente</span>
+      </div>
+      <p class="pie-lema">UniConnect &nbsp;•&nbsp; Conectando nuestra comunidad</p>
+    </footer>
+  </div>
+
+  <button type="button" class="chat-flotante" aria-label="Abrir chat">
+    <app-icono nombre="chat" />
   </button>
-
 </div>
