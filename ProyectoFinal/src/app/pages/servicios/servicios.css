@@ -1,0 +1,24 @@
+:host { display: block; min-height: 100vh; background: #f8f9fa; color: #2c3e50; font-family: Inter, system-ui, sans-serif; }
+.pagina-servicios { width: min(100% - 40px, 1040px); margin: 0 auto; padding: 32px 0 64px; }
+.volver { color: #006699; font-weight: 600; text-decoration: none; }
+.encabezado-servicios { margin: 36px 0 24px; }
+.sobretitulo { color: #e31b23; font-size: 12px; font-weight: 700; letter-spacing: .12em; }
+h1, h2, h3, p { margin-top: 0; }
+h1 { margin: 8px 0; font-size: clamp(30px, 5vw, 42px); }
+.encabezado-servicios > p:last-child { color: #6b7c8c; }
+.busqueda-servicios { display: flex; align-items: center; gap: 12px; padding: 0 18px; height: 54px; border: 1px solid #e6eaee; border-radius: 14px; background: white; color: #006699; font-size: 26px; }
+.busqueda-servicios input { width: 100%; border: 0; outline: 0; font: inherit; font-size: 16px; color: #2c3e50; }
+.busqueda-servicios:focus-within { border-color: #006699; box-shadow: 0 0 0 3px #e3f1f8; }
+.categorias-servicios { display: flex; gap: 10px; overflow-x: auto; padding: 18px 0 24px; }
+.categorias-servicios button { flex: 0 0 auto; padding: 9px 14px; border: 1px solid #e6eaee; border-radius: 999px; background: white; color: #2c3e50; font: inherit; cursor: pointer; }
+.categorias-servicios button.seleccionada { border-color: #006699; background: #006699; color: white; }
+.categorias-servicios span { margin-left: 4px; opacity: .75; }
+.resultados-servicios h2 { margin-bottom: 14px; font-size: 18px; }
+.tarjetas-servicios { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.tarjeta-servicio { padding: 20px; border: 1px solid #e6eaee; border-radius: 14px; background: white; box-shadow: 0 2px 10px #2c3e500d; }
+.categoria-servicio { display: inline-block; margin-bottom: 10px; padding: 4px 10px; border-radius: 999px; background: #e3f1f8; color: #006699; font-size: 12px; font-weight: 600; }
+.tarjeta-servicio h3 { margin-bottom: 8px; font-size: 18px; }
+.tarjeta-servicio p { color: #6b7c8c; line-height: 1.5; }
+.tarjeta-servicio .ubicacion-servicio { margin: 16px 0 0; color: #2c3e50; font-size: 14px; font-weight: 600; }
+.sin-resultados { padding: 24px; border-radius: 12px; background: white; color: #6b7c8c; }
+@media (max-width: 600px) { .tarjetas-servicios { grid-template-columns: 1fr; } .pagina-servicios { width: min(100% - 28px, 1040px); padding-top: 22px; } }
