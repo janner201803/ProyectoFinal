@@ -50,7 +50,7 @@
         <div class="hero-texto">
           <h1>¡Hola, {{ nombre }}! <span class="saludo">👋</span></h1>
           <p>Conecta, comparte y aprovecha todo lo que UniConnect tiene para ti.</p>
-          <button type="button" class="boton boton-primario">
+          <button type="button" class="boton boton-primario" (click)="ejecutar('servicios')">
             Explorar servicios
             <app-icono nombre="flecha" />
           </button>
@@ -159,11 +159,11 @@
         </article>
 
         <article class="ayuda">
-          <img class="ayuda-imagen" src="img/mapaCampus.jpg" alt="Mapa del campus UAO" />
+          <img class="ayuda-imagen" src="img/mapaCampusUAO.png" alt="Mapa del campus UAO con edificios, servicios y porterías" />
           <div class="ayuda-cuerpo">
             <h3>¿Necesitas ayuda?</h3>
             <p>Consulta nuestro mapa del campus</p>
-            <button type="button" class="boton boton-secundario" (click)="abrirMapa()">
+            <button type="button" class="boton boton-secundario" (click)="ejecutar('mapa')">
               Ver mapa
               <app-icono nombre="flecha" />
             </button>

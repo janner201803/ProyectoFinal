@@ -55,11 +55,9 @@ export class Inicio implements OnInit {
 
   correo = '';
 
-  private urlMapa = 'https://cit.uao.edu.co/uao-360/';
-
   menu = [
     { etiqueta: 'Inicio', icono: 'inicio', activo: true },
-    { etiqueta: 'Servicios', icono: 'servicios', activo: false },
+    { etiqueta: 'Servicios', icono: 'servicios', activo: false, accion: 'servicios' },
     { etiqueta: 'Objetos Perdidos', icono: 'buscar', activo: false },
     { etiqueta: 'Eventos', icono: 'calendario', activo: false },
     { etiqueta: 'Chat', icono: 'chat', activo: false },
@@ -68,7 +66,7 @@ export class Inicio implements OnInit {
   ];
 
   accesos = [
-    { etiqueta: 'Servicios Universitarios', icono: 'servicios' },
+    { etiqueta: 'Servicios Universitarios', icono: 'servicios', accion: 'servicios' },
     { etiqueta: 'Objetos Perdidos', icono: 'buscar' },
     { etiqueta: 'Eventos', icono: 'calendario' },
     { etiqueta: 'Mapa del Campus', icono: 'mapa', accion: 'mapa' }
@@ -126,13 +124,9 @@ export class Inicio implements OnInit {
 
   }
 
-  abrirMapa(): void {
-    window.open(this.urlMapa, '_blank', 'noopener');
-  }
-
   ejecutar(accion?: string): void {
-    if (accion === 'mapa') {
-      this.abrirMapa();
+    if (accion === 'mapa' || accion === 'servicios') {
+      void this.router.navigate([`/${accion}`]);
     }
   }
 

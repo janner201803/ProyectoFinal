@@ -1,0 +1,40 @@
+<main class="pagina-servicios">
+  <a class="volver" routerLink="/inicio">← Volver al inicio</a>
+  <header class="encabezado-servicios">
+    <p class="sobretitulo">UNICONNECT · CAMPUS</p>
+    <h1>Servicios universitarios</h1>
+    <p>Encuentra dónde ir y qué ofrece cada servicio de la UAO.</p>
+  </header>
+
+  <label class="busqueda-servicios">
+    <span aria-hidden="true">⌕</span>
+    <input type="search" [value]="query" (input)="buscar($any($event.target).value)" placeholder="Busca por servicio o palabra clave" aria-label="Buscar servicios" />
+  </label>
+
+  <section class="categorias-servicios" aria-label="Filtrar por categoría">
+    <button type="button" [class.seleccionada]="!categoriaSeleccionada" (click)="seleccionarCategoria('')">Todos</button>
+    @for (categoria of categorias; track categoria.label) {
+      <button type="button" [class.seleccionada]="categoriaSeleccionada === categoria.label" (click)="seleccionarCategoria(categoria.label)">
+        {{ categoria.label }} <span>{{ categoria.values.length }}</span>
+      </button>
+    }
+  </section>
+
+  <section class="resultados-servicios" aria-live="polite">
+    <h2>{{ resultados.length }} servicios disponibles</h2>
+    @if (resultados.length) {
+      <div class="tarjetas-servicios">
+        @for (servicio of resultados; track servicio.name) {
+          <article class="tarjeta-servicio">
+            <span class="categoria-servicio">{{ servicio.category }}</span>
+            <h3>{{ servicio.name }}</h3>
+            <p>{{ servicio.description }}</p>
+            <p class="ubicacion-servicio">⌖ {{ servicio.location }}</p>
+          </article>
+        }
+      </div>
+    } @else {
+      <p class="sin-resultados">No encontramos servicios con esa búsqueda. Prueba con otra palabra.</p>
+    }
+  </section>
+</main>

@@ -1,0 +1,59 @@
+<main class="pagina-mapa">
+  <a class="volver" routerLink="/inicio">← Volver al inicio</a>
+  <header class="encabezado-mapa">
+    <p class="sobretitulo">UNICONNECT · CAMPUS</p>
+    <h1>Encuentra tu camino</h1>
+    <p>Selecciona uno de los 17 lugares señalados en el mapa y encuentra la ruta con indicaciones paso a paso hasta cualquier otra ubicación o portería.</p>
+  </header>
+
+  <section class="panel-ruta" aria-label="Planificador de ruta">
+    <label>Desde
+      <select [(ngModel)]="origen">
+        @for (lugar of lugares; track lugar.id) { <option [value]="lugar.id">{{ lugar.name }}</option> }
+      </select>
+    </label>
+    <span class="flecha-ruta" aria-hidden="true">→</span>
+    <label>Hasta
+      <select [(ngModel)]="destino">
+        @for (lugar of lugares; track lugar.id) { <option [value]="lugar.id">{{ lugar.name }}</option> }
+      </select>
+    </label>
+    <button type="button" (click)="calcularRuta()">Calcular ruta</button>
+  </section>
+
+  <section class="resultado-ruta" aria-live="polite">
+    @if (ruta) {
+      <h2>Tu ruta · {{ ruta.places.length - 1 }} {{ ruta.places.length - 1 === 1 ? 'tramo' : 'tramos' }}</h2>
+      <ol>
+        @for (lugar of ruta.places; track lugar.id) { <li>{{ lugar.name }}</li> }
+      </ol>
+      <h3>Indicaciones paso a paso</h3>
+      <ol class="instrucciones-ruta">
+        @for (instruccion of ruta.instructions; track $index) { <li>{{ instruccion }}</li> }
+      </ol>
+    } @else if (busquedaRealizada) {
+      <p>Selecciona dos lugares conectados para ver la ruta.</p>
+    } @else {
+      <p>La ruta más corta aparecerá aquí.</p>
+    }
+    <p class="nota-mapa">Las indicaciones siguen los senderos y referentes visibles en el mapa enviado. Son una guía esquemática; confirma los accesos y condiciones actuales en el mapa oficial.</p>
+    <a href="https://cit.uao.edu.co/uao-360/" target="_blank" rel="noopener noreferrer">Abrir mapa oficial UAO ↗</a>
+  </section>
+
+  <figure class="mapa-imagen">
+    <div class="mapa-lienzo">
+      <img src="img/mapaCampusUAO.png" alt="Mapa del campus UAO con cinco porterías y 17 ubicaciones como auditorios, Biblioteca, Admisiones, Cafetería y CASA" />
+      @if (ruta && ruta.path.length > 1) {
+        <svg class="ruta-overlay" viewBox="0 0 640 852" preserveAspectRatio="none" role="img" aria-label="Ruta dibujada sobre el mapa del campus">
+          <polyline class="ruta-borde" [attr.points]="puntosRuta" />
+          <polyline class="ruta-trazo" [attr.points]="puntosRuta" />
+          <circle class="marcador-origen" [attr.cx]="ruta.path[0].x" [attr.cy]="ruta.path[0].y" r="11" />
+          <text class="marcador-texto" [attr.x]="ruta.path[0].x" [attr.y]="ruta.path[0].y + 4">A</text>
+          <circle class="marcador-destino" [attr.cx]="ruta.path[ruta.path.length - 1].x" [attr.cy]="ruta.path[ruta.path.length - 1].y" r="11" />
+          <text class="marcador-texto" [attr.x]="ruta.path[ruta.path.length - 1].x" [attr.y]="ruta.path[ruta.path.length - 1].y + 4">B</text>
+        </svg>
+      }
+    </div>
+    <figcaption>Mapa general del campus UAO. El planificador incluye las ubicaciones numeradas y las porterías 1 a 5.</figcaption>
+  </figure>
+</main>
