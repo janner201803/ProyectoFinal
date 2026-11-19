@@ -1,0 +1,72 @@
+<div class="app">
+  <aside class="lateral">
+    <div class="marca">
+      <img class="marca-logo" src="img/logo.png" alt="UAO" />
+      <span class="marca-linea"></span>
+      <span class="marca-nombre">UAO Vibe</span>
+    </div>
+
+    <nav class="menu" aria-label="Navegación principal">
+      @for (item of menu; track item.clave) {
+        @if (item.ruta) {
+          <a
+            class="menu-item"
+            [class.activo]="item.clave === activo"
+            [routerLink]="item.ruta"
+            [attr.aria-current]="item.clave === activo ? 'page' : null"
+          >
+            <app-icono [nombre]="item.icono" />
+            <span>{{ item.etiqueta }}</span>
+          </a>
+        } @else {
+          <button type="button" class="menu-item">
+            <app-icono [nombre]="item.icono" />
+            <span>{{ item.etiqueta }}</span>
+          </button>
+        }
+      }
+    </nav>
+
+    <div class="menu-salir">
+      <button type="button" class="menu-item" (click)="cerrarSesion()">
+        <app-icono nombre="salir" />
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
+
+    <div class="lateral-arco" aria-hidden="true"></div>
+  </aside>
+
+  <div class="principal">
+    <header class="barra">
+      <div class="barra-acciones">
+        <button class="campana" type="button" aria-label="Notificaciones">
+          <app-icono nombre="campana" />
+          <span class="campana-punto"></span>
+        </button>
+        <button class="usuario" type="button">
+          <span class="avatar">{{ iniciales }}</span>
+          <span class="usuario-nombre">{{ correo || 'Estudiante' }}</span>
+          <app-icono nombre="abajo" />
+        </button>
+      </div>
+    </header>
+
+    <main class="contenido">
+      <ng-content></ng-content>
+    </main>
+
+    <footer class="pie">
+      <div class="pie-marca">
+        <img class="marca-logo" src="img/logo.png" alt="UAO" />
+        <span class="marca-linea"></span>
+        <span class="pie-universidad">Universidad Autónoma<br />de Occidente</span>
+      </div>
+      <p class="pie-lema">UAO Vibe &nbsp;•&nbsp; Conectando nuestra comunidad</p>
+    </footer>
+  </div>
+
+  <button type="button" class="chat-flotante" aria-label="Abrir chat">
+    <app-icono nombre="chat" />
+  </button>
+</div>

@@ -1,0 +1,84 @@
+<app-layout activo="perfil">
+
+  <section class="portada">
+    <img class="portada-imagen" src="img/campus.webp" alt="" />
+
+    <div class="portada-cuerpo">
+      <span class="avatar-grande">{{ iniciales }}</span>
+
+      <div class="portada-texto">
+        <h1>{{ nombre }}</h1>
+        <p class="correo"><app-icono nombre="mensaje" /> {{ correo || 'Sin correo' }}</p>
+        <span class="etiqueta">Estudiante UAO</span>
+      </div>
+
+      <button type="button" class="boton boton-primario">Editar perfil</button>
+    </div>
+  </section>
+
+  <div class="rejilla">
+
+    <article class="panel">
+      <header class="panel-cabecera">
+        <h2>Mis publicaciones</h2>
+        <button type="button" class="ver-todos">
+          Ver todas
+          <app-icono nombre="flecha" />
+        </button>
+      </header>
+
+      <ul class="historial">
+        @for (publicacion of publicaciones; track publicacion.titulo) {
+          <li>
+            <span class="historial-icono"><app-icono nombre="servicios" /></span>
+            <div class="historial-info">
+              <h3>{{ publicacion.titulo }}</h3>
+              <p>{{ publicacion.tipo }} · {{ publicacion.tiempo }}</p>
+            </div>
+            <span class="estado" [class.resuelta]="publicacion.estado === 'Resuelta'">{{ publicacion.estado }}</span>
+          </li>
+        }
+      </ul>
+    </article>
+
+    <aside class="derecha">
+
+      <article class="panel">
+        <header class="panel-cabecera">
+          <h2>Resumen</h2>
+        </header>
+        <ul class="resumen">
+          @for (dato of resumen; track dato.etiqueta) {
+            <li>
+              <strong>{{ dato.valor }}</strong>
+              <span>{{ dato.etiqueta }}</span>
+            </li>
+          }
+        </ul>
+      </article>
+
+      <article class="panel">
+        <header class="panel-cabecera">
+          <h2>Privacidad</h2>
+        </header>
+        <ul class="privacidad">
+          @for (opcion of privacidad; track opcion.titulo) {
+            <li>
+              <div class="privacidad-info">
+                <h3>{{ opcion.titulo }}</h3>
+                <p>{{ opcion.detalle }}</p>
+              </div>
+              <label class="interruptor">
+                <input type="checkbox" [checked]="opcion.activo" [attr.aria-label]="opcion.titulo" />
+                <span></span>
+              </label>
+            </li>
+          }
+        </ul>
+      </article>
+
+    </aside>
+
+  </div>
+
+</app-layout>

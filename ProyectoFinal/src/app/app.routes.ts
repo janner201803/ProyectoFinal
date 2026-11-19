@@ -8,6 +8,8 @@ import { Mapa } from './pages/mapa/mapa';
 
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { ObjetosPerdidos } from './pages/objetos-perdidos/objetos-perdidos';
+import { Perfil } from './perfil/perfil';
 
 export const routes: Routes = [
 
@@ -45,6 +47,16 @@ export const routes: Routes = [
     path: 'mapa',
     component: Mapa,
     canActivate: [authGuard]
+  },
+
+  { path: 'objetos-perdidos',
+    component: ObjetosPerdidos,
+    canActivate: [authGuard] 
+  },
+  
+  { path: 'perfil',
+    component: Perfil,
+    canActivate: [authGuard] 
   },
 
   {

@@ -1,40 +1,130 @@
-<main class="pagina-servicios">
-  <a class="volver" routerLink="/inicio">← Volver al inicio</a>
-  <header class="encabezado-servicios">
-    <p class="sobretitulo">UNICONNECT · CAMPUS</p>
-    <h1>Servicios universitarios</h1>
-    <p>Encuentra dónde ir y qué ofrece cada servicio de la UAO.</p>
-  </header>
+<div class="app">
+  <aside class="lateral">
+    <div class="marca">
+      <img class="marca-logo" src="img/logo.png" alt="UAO" />
+      <span class="marca-linea"></span>
+      <span class="marca-nombre">UAO Vibe</span>
+    </div>
 
-  <label class="busqueda-servicios">
-    <span aria-hidden="true">⌕</span>
-    <input type="search" [value]="query" (input)="buscar($any($event.target).value)" placeholder="Busca por servicio o palabra clave" aria-label="Buscar servicios" />
-  </label>
-
-  <section class="categorias-servicios" aria-label="Filtrar por categoría">
-    <button type="button" [class.seleccionada]="!categoriaSeleccionada" (click)="seleccionarCategoria('')">Todos</button>
-    @for (categoria of categorias; track categoria.label) {
-      <button type="button" [class.seleccionada]="categoriaSeleccionada === categoria.label" (click)="seleccionarCategoria(categoria.label)">
-        {{ categoria.label }} <span>{{ categoria.values.length }}</span>
+    <nav class="menu" aria-label="Navegación principal">
+      <a class="menu-item" routerLink="/inicio">
+        <app-icono nombre="inicio" />
+        <span>Inicio</span>
+      </a>
+      <a class="menu-item activo" routerLink="/servicios" aria-current="page">
+        <app-icono nombre="servicios" />
+        <span>Servicios</span>
+      </a>
+      <a class="menu-item" routerLink="/objetos-perdidos">
+        <app-icono nombre="buscar" />
+        <span>Objetos Perdidos</span>
+      </a>
+      <button type="button" class="menu-item">
+        <app-icono nombre="calendario" />
+        <span>Eventos</span>
       </button>
-    }
-  </section>
+      <button type="button" class="menu-item">
+        <app-icono nombre="chat" />
+        <span>Chat</span>
+      </button>
+      <a class="menu-item" routerLink="/mapa">
+        <app-icono nombre="mapa" />
+        <span>Mapa</span>
+      </a>
+      <a class="menu-item" routerLink="/perfil">
+        <app-icono nombre="perfil" />
+        <span>Perfil</span>
+      </a>
+    </nav>
 
-  <section class="resultados-servicios" aria-live="polite">
-    <h2>{{ resultados.length }} servicios disponibles</h2>
-    @if (resultados.length) {
-      <div class="tarjetas-servicios">
-        @for (servicio of resultados; track servicio.name) {
-          <article class="tarjeta-servicio">
-            <span class="categoria-servicio">{{ servicio.category }}</span>
-            <h3>{{ servicio.name }}</h3>
-            <p>{{ servicio.description }}</p>
-            <p class="ubicacion-servicio">⌖ {{ servicio.location }}</p>
-          </article>
-        }
+    <div class="menu-salir">
+      <button type="button" class="menu-item" (click)="cerrarSesion()">
+        <app-icono nombre="salir" />
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
+
+    <div class="lateral-arco" aria-hidden="true"></div>
+  </aside>
+
+  <div class="principal">
+    <header class="barra">
+      <div class="barra-acciones">
+        <button class="campana" type="button" aria-label="Notificaciones">
+          <app-icono nombre="campana" />
+          <span class="campana-punto"></span>
+        </button>
+        <button class="usuario" type="button">
+          <span class="avatar">{{ iniciales }}</span>
+          <span class="usuario-nombre">{{ correo || 'Estudiante' }}</span>
+          <app-icono nombre="abajo" />
+        </button>
       </div>
-    } @else {
-      <p class="sin-resultados">No encontramos servicios con esa búsqueda. Prueba con otra palabra.</p>
-    }
-  </section>
-</main>
+    </header>
+
+    <main class="contenido">
+      <header class="encabezado">
+        <p class="sobretitulo">UAO VIBE · CAMPUS</p>
+        <h1>Servicios universitarios</h1>
+        <p class="descripcion">Encuentra dónde ir y qué ofrece cada servicio de la UAO.</p>
+      </header>
+
+      <label class="busqueda">
+        <app-icono nombre="buscar" />
+        <input
+          type="search"
+          [value]="query"
+          (input)="buscar($any($event.target).value)"
+          placeholder="Busca por servicio o palabra clave"
+          aria-label="Buscar servicios"
+        />
+      </label>
+
+      <section class="categorias" aria-label="Filtrar por categoría">
+        <button type="button" [class.seleccionada]="!categoriaSeleccionada" (click)="seleccionarCategoria('')">Todos</button>
+        @for (categoria of categorias; track categoria.label) {
+          <button type="button" [class.seleccionada]="categoriaSeleccionada === categoria.label" (click)="seleccionarCategoria(categoria.label)">
+            {{ categoria.label }} <span>{{ categoria.values.length }}</span>
+          </button>
+        }
+      </section>
+
+      <section class="resultados" aria-live="polite">
+        <header class="panel-cabecera">
+          <h2>{{ resultados.length }} servicios disponibles</h2>
+        </header>
+
+        @if (resultados.length) {
+          <div class="tarjetas">
+            @for (servicio of resultados; track servicio.name) {
+              <article class="tarjeta">
+                <div class="tarjeta-cabecera">
+                  <span class="tarjeta-icono"><app-icono nombre="servicios" /></span>
+                  <span class="etiqueta">{{ servicio.category }}</span>
+                </div>
+                <h3>{{ servicio.name }}</h3>
+                <p class="tarjeta-descripcion">{{ servicio.description }}</p>
+                <p class="dato"><app-icono nombre="mapa" /> {{ servicio.location }}</p>
+              </article>
+            }
+          </div>
+        } @else {
+          <p class="sin-resultados">No encontramos servicios con esa búsqueda. Prueba con otra palabra.</p>
+        }
+      </section>
+    </main>
+
+    <footer class="pie">
+      <div class="pie-marca">
+        <img class="marca-logo" src="img/logo.png" alt="UAO" />
+        <span class="marca-linea"></span>
+        <span class="pie-universidad">Universidad Autónoma<br />de Occidente</span>
+      </div>
+      <p class="pie-lema">UAO Vibe &nbsp;•&nbsp; Conectando nuestra comunidad</p>
+    </footer>
+  </div>
+
+  <button type="button" class="chat-flotante" aria-label="Abrir chat">
+    <app-icono nombre="chat" />
+  </button>
+</div>

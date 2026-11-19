@@ -1,0 +1,115 @@
+<app-layout activo="objetos-perdidos">
+
+  <header class="encabezado">
+    <div class="encabezado-texto">
+      <p class="sobretitulo">UAO VIBE · CAMPUS</p>
+      <h1>Objetos perdidos</h1>
+      <p class="descripcion">Publica lo que perdiste o encontraste y ayuda a otros estudiantes.</p>
+    </div>
+    <button type="button" class="boton boton-primario">
+      <span class="mas" aria-hidden="true">+</span>
+      Publicar objeto
+    </button>
+  </header>
+
+  <div class="rejilla">
+
+    <section class="columna">
+      <div class="herramientas">
+        <label class="busqueda">
+          <app-icono nombre="buscar" />
+          <input
+            type="search"
+            [value]="busqueda"
+            (input)="buscar($any($event.target).value)"
+            placeholder="Busca por objeto o lugar"
+            aria-label="Buscar objetos"
+          />
+        </label>
+
+        <div class="filtros" aria-label="Filtrar por estado">
+          <button type="button" [class.seleccionada]="!filtro" (click)="filtrar('')">
+            Todos <span>{{ objetos.length }}</span>
+          </button>
+          <button type="button" [class.seleccionada]="filtro === 'Perdido'" (click)="filtrar('Perdido')">
+            Perdidos <span>{{ contar('Perdido') }}</span>
+          </button>
+          <button type="button" [class.seleccionada]="filtro === 'Encontrado'" (click)="filtrar('Encontrado')">
+            Encontrados <span>{{ contar('Encontrado') }}</span>
+          </button>
+        </div>
+      </div>
+
+      <header class="panel-cabecera">
+        <h2>{{ visibles.length }} publicaciones</h2>
+      </header>
+
+      @if (visibles.length) {
+        <div class="tarjetas">
+          @for (objeto of visibles; track objeto.nombre) {
+            <article class="tarjeta">
+              <div class="tarjeta-imagen">
+                <app-icono nombre="buscar" />
+                <span
+                  class="etiqueta"
+                  [class.etiqueta-azul]="objeto.estado === 'Encontrado'"
+                  [class.etiqueta-roja]="objeto.estado === 'Perdido'"
+                >
+                  {{ objeto.estado }}
+                </span>
+              </div>
+
+              <div class="tarjeta-cuerpo">
+                <h3>{{ objeto.nombre }}</h3>
+                <p class="tarjeta-descripcion">{{ objeto.detalle }}</p>
+                <p class="dato"><app-icono nombre="mapa" /> {{ objeto.lugar }}</p>
+                <p class="dato"><app-icono nombre="reloj" /> {{ objeto.tiempo }}</p>
+              </div>
+
+              <footer class="tarjeta-pie">
+                <span class="autor">
+                  <span class="avatar-chico">{{ objeto.autor.charAt(0) }}</span>
+                  {{ objeto.autor }}
+                </span>
+                <button type="button" class="boton boton-secundario boton-chico">
+                  <app-icono nombre="chat" />
+                  Contactar
+                </button>
+              </footer>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="sin-resultados">No encontramos publicaciones con esa búsqueda.</p>
+      }
+    </section>
+
+    <aside class="derecha">
+      <article class="panel">
+        <header class="panel-cabecera">
+          <h2>Solicitudes pendientes</h2>
+        </header>
+        <ul class="solicitudes">
+          @for (solicitud of solicitudes; track solicitud.titulo) {
+            <li>
+              <div class="solicitud-info">
+                <h3>{{ solicitud.titulo }}</h3>
+                <p>{{ solicitud.detalle }}</p>
+              </div>
+              <span
+                class="prioridad"
+                [class.alta]="solicitud.prioridad === 'Alta'"
+                [class.media]="solicitud.prioridad === 'Media'"
+                [class.baja]="solicitud.prioridad === 'Baja'"
+              >
+                {{ solicitud.prioridad }}
+              </span>
+            </li>
+          }
+        </ul>
+      </article>
+    </aside>
+
+  </div>
+
+</app-layout>
