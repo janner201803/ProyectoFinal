@@ -1,4 +1,4 @@
-# Estructuras de datos de UniConnect
+# Estructuras de datos de Uau Vibe
 
 En la rama `logica` se implementan dos funciones accesibles desde la página de inicio: búsqueda de servicios universitarios y cálculo de una ruta esquemática entre lugares del campus.
 
