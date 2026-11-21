@@ -9,7 +9,9 @@ import { Mapa } from './pages/mapa/mapa';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { ObjetosPerdidos } from './pages/objetos-perdidos/objetos-perdidos';
-import { Perfil } from './perfil/perfil';
+import { Perfil } from './pages/perfil/perfil';
+import { Eventos } from './pages/eventos/eventos';
+import { Chat } from './pages/chat/chat';
 
 export const routes: Routes = [
 
@@ -57,6 +59,16 @@ export const routes: Routes = [
   { path: 'perfil',
     component: Perfil,
     canActivate: [authGuard] 
+  },
+
+  { path: 'eventos',
+    component: Eventos,
+    canActivate: [authGuard]
+  },
+
+  { path: 'chat', 
+    component: Chat,
+    canActivate: [authGuard]
   },
 
   {

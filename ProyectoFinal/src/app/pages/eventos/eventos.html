@@ -1,0 +1,105 @@
+<app-layout activo="eventos">
+
+  <header class="encabezado">
+    <div class="encabezado-texto">
+      <p class="sobretitulo">UAO VIBE · CAMPUS</p>
+      <h1>Eventos</h1>
+      <p class="descripcion">Entérate de las actividades de la universidad e inscríbete en las que te interesen.</p>
+    </div>
+  </header>
+
+  <div class="rejilla">
+
+    <section class="columna">
+      <div class="filtros" aria-label="Filtrar por categoría">
+        <button type="button" [class.seleccionada]="!filtro" (click)="filtrar('')">
+          Todos <span>{{ eventos.length }}</span>
+        </button>
+        @for (categoria of categorias; track categoria) {
+          <button type="button" [class.seleccionada]="filtro === categoria" (click)="filtrar(categoria)">
+            {{ categoria }} <span>{{ contar(categoria) }}</span>
+          </button>
+        }
+      </div>
+
+      <header class="panel-cabecera">
+        <h2>{{ visibles.length }} eventos próximos</h2>
+      </header>
+
+      <ul class="lista">
+        @for (evento of visibles; track evento.titulo) {
+          <li class="evento">
+            <div class="fecha">
+              <strong>{{ evento.dia }}</strong>
+              <span>{{ evento.mes }}</span>
+            </div>
+
+            <div class="evento-info">
+              <span class="etiqueta">{{ evento.categoria }}</span>
+              <h3>{{ evento.titulo }}</h3>
+              <p class="dato"><app-icono nombre="reloj" /> {{ evento.hora }}</p>
+              <p class="dato"><app-icono nombre="mapa" /> {{ evento.lugar }}</p>
+            </div>
+
+            <button
+              type="button"
+              class="boton"
+              [class.boton-primario]="!evento.inscrito"
+              [class.boton-inscrito]="evento.inscrito"
+              (click)="alternar(evento)"
+            >
+              {{ evento.inscrito ? '✓ Inscrito' : 'Inscribirme' }}
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <aside class="derecha">
+
+      <article class="panel">
+        <header class="panel-cabecera">
+          <h2>{{ nombreMes }}</h2>
+        </header>
+
+        <div class="calendario">
+          @for (letra of semana; track $index) {
+            <span class="semana">{{ letra }}</span>
+          }
+          @for (dia of dias; track $index) {
+            @if (dia) {
+              <span class="dia" [class.con-evento]="esEvento(dia)" [class.hoy]="esHoy(dia)">{{ dia }}</span>
+            } @else {
+              <span class="dia vacio"></span>
+            }
+          }
+        </div>
+      </article>
+
+      <article class="panel">
+        <header class="panel-cabecera">
+          <h2>Mis inscripciones</h2>
+        </header>
+
+        @if (inscritos.length) {
+          <ul class="inscritos">
+            @for (evento of inscritos; track evento.titulo) {
+              <li>
+                <span class="mini-fecha">{{ evento.dia }} {{ evento.mes }}</span>
+                <div class="inscrito-info">
+                  <h3>{{ evento.titulo }}</h3>
+                  <p>{{ evento.hora }} · {{ evento.lugar }}</p>
+                </div>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="sin-inscripciones">Aún no te has inscrito a ningún evento.</p>
+        }
+      </article>
+
+    </aside>
+
+  </div>
+
+</app-layout>

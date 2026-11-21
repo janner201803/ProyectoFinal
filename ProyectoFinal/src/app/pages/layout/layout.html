@@ -8,22 +8,15 @@
 
     <nav class="menu" aria-label="Navegación principal">
       @for (item of menu; track item.clave) {
-        @if (item.ruta) {
-          <a
-            class="menu-item"
-            [class.activo]="item.clave === activo"
-            [routerLink]="item.ruta"
-            [attr.aria-current]="item.clave === activo ? 'page' : null"
-          >
-            <app-icono [nombre]="item.icono" />
-            <span>{{ item.etiqueta }}</span>
-          </a>
-        } @else {
-          <button type="button" class="menu-item">
-            <app-icono [nombre]="item.icono" />
-            <span>{{ item.etiqueta }}</span>
-          </button>
-        }
+        <a
+          class="menu-item"
+          [class.activo]="item.clave === activo"
+          [routerLink]="item.ruta"
+          [attr.aria-current]="item.clave === activo ? 'page' : null"
+        >
+          <app-icono [nombre]="item.icono" />
+          <span>{{ item.etiqueta }}</span>
+        </a>
       }
     </nav>
 
@@ -40,15 +33,55 @@
   <div class="principal">
     <header class="barra">
       <div class="barra-acciones">
-        <button class="campana" type="button" aria-label="Notificaciones">
-          <app-icono nombre="campana" />
-          <span class="campana-punto"></span>
-        </button>
-        <button class="usuario" type="button">
+
+        <div class="campana-contenedor">
+          <button
+            type="button"
+            class="campana"
+            aria-label="Notificaciones"
+            [attr.aria-expanded]="abierto"
+            (click)="alternar()"
+          >
+            <app-icono nombre="campana" />
+            @if (noLeidas) {
+              <span class="campana-punto"></span>
+            }
+          </button>
+
+          @if (abierto) {
+            <section class="notificaciones" role="dialog" aria-label="Notificaciones">
+              <header class="notificaciones-cabecera">
+                <h2>Notificaciones</h2>
+                <button type="button" class="marcar" (click)="marcarTodas()">Marcar todas como leídas</button>
+              </header>
+
+              <ul class="notificaciones-lista">
+                @for (n of notificaciones; track n.titulo) {
+                  <li>
+                    <a class="notificacion" [class.sin-leer]="!n.leida" [routerLink]="n.ruta" (click)="abrir(n)">
+                      <span class="notificacion-icono"><app-icono [nombre]="icono(n.tipo)" /></span>
+                      <span class="notificacion-texto">
+                        <strong>{{ n.titulo }}</strong>
+                        <small>{{ n.detalle }}</small>
+                        <em>{{ n.tiempo }}</em>
+                      </span>
+                      @if (!n.leida) {
+                        <i class="notificacion-punto" aria-label="Sin leer"></i>
+                      }
+                    </a>
+                  </li>
+                }
+              </ul>
+            </section>
+          }
+        </div>
+
+        <a class="usuario" routerLink="/perfil">
           <span class="avatar">{{ iniciales }}</span>
-          <span class="usuario-nombre">{{ correo || 'Estudiante' }}</span>
+          <span class="usuario-nombre">{{ nombre }}</span>
           <app-icono nombre="abajo" />
-        </button>
+        </a>
+
       </div>
     </header>
 
@@ -66,7 +99,4 @@
     </footer>
   </div>
 
-  <button type="button" class="chat-flotante" aria-label="Abrir chat">
-    <app-icono nombre="chat" />
-  </button>
 </div>

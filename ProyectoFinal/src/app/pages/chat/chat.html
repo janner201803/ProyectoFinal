@@ -1,0 +1,91 @@
+<app-layout activo="chat">
+
+  <header class="encabezado">
+    <div class="encabezado-texto">
+      <p class="sobretitulo">UAO VIBE · CAMPUS</p>
+      <h1>Chat</h1>
+      <p class="descripcion">Habla en tiempo real con otros estudiantes de la UAO.</p>
+    </div>
+  </header>
+
+  <section class="chat">
+
+    <aside class="conversaciones">
+      <label class="busqueda">
+        <app-icono nombre="buscar" />
+        <input
+          type="search"
+          [value]="busqueda"
+          (input)="buscar($any($event.target).value)"
+          placeholder="Buscar conversación"
+          aria-label="Buscar conversación"
+        />
+      </label>
+
+      <ul class="lista">
+        @for (c of visibles; track c.id) {
+          <li>
+            <button type="button" class="conversacion" [class.activa]="c.id === actual.id" (click)="seleccionar(c)">
+              <span class="avatar-chat">
+                {{ c.nombre.charAt(0) }}
+                <i class="punto" [class.en-linea]="c.enLinea"></i>
+              </span>
+              <span class="conv-texto">
+                <strong>{{ c.nombre }}</strong>
+                <small>{{ c.ultimo }}</small>
+              </span>
+              <span class="conv-meta">
+                <small>{{ c.hora }}</small>
+                @if (c.sinLeer) {
+                  <b class="sin-leer">{{ c.sinLeer }}</b>
+                }
+              </span>
+            </button>
+          </li>
+        } @empty {
+          <li class="sin-resultados">No encontramos conversaciones.</li>
+        }
+      </ul>
+    </aside>
+
+    <article class="activa-chat">
+      <header class="cabecera-chat">
+        <span class="avatar-chat">
+          {{ actual.nombre.charAt(0) }}
+          <i class="punto" [class.en-linea]="actual.enLinea"></i>
+        </span>
+        <div>
+          <h2>{{ actual.nombre }}</h2>
+          <p [class.en-linea-texto]="actual.enLinea">{{ actual.enLinea ? 'En línea' : 'Desconectado' }}</p>
+        </div>
+      </header>
+
+      <div class="mensajes" role="log" aria-live="polite">
+        @for (m of invertidos; track $index) {
+          <div class="burbuja" [class.mia]="m.mio">
+            <p>{{ m.texto }}</p>
+            <span>{{ m.hora }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="redactar">
+        <input
+          #caja
+          type="text"
+          placeholder="Escribe un mensaje..."
+          aria-label="Escribe un mensaje"
+          (keydown.enter)="enviar(caja.value); caja.value = ''"
+        />
+        <button type="button" class="enviar" aria-label="Enviar mensaje" (click)="enviar(caja.value); caja.value = ''">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+        </button>
+      </div>
+    </article>
+
+  </section>
+
+</app-layout>

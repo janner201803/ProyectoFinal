@@ -1,8 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import { Component } from '@angular/core';
 import { CAMPUS_SERVICES, CampusService, createServiceCatalog } from '../../core/data-structures/campus-data';
-import { Icono } from '../inicio/inicio';
+import { Layout } from '../layout/layout';
+import { Icono } from '../icono/icono';
 
 function normalize(value: string): string {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').trim();
@@ -11,32 +10,16 @@ function normalize(value: string): string {
 @Component({
   selector: 'app-servicios',
   standalone: true,
-  imports: [RouterLink, Icono],
+  imports: [Layout, Icono],
   templateUrl: './servicios.html',
   styleUrl: './servicios.css'
 })
-export class Servicios implements OnInit {
-  private authService = inject(AuthService);
-  private router = inject(Router);
-
+export class Servicios {
   private readonly catalog = createServiceCatalog(CAMPUS_SERVICES);
   readonly categorias = this.catalog.categories.children;
   query = '';
   categoriaSeleccionada = '';
   resultados = this.catalog.list.toArray();
-  correo = '';
-
-  get iniciales(): string {
-    return (this.correo.slice(0, 2) || 'U').toUpperCase();
-  }
-
-  async ngOnInit() {
-
-    const usuario = await this.authService.obtenerUsuario();
-
-    this.correo = usuario?.email ?? '';
-
-  }
 
   buscar(query: string): void {
     this.query = query;
@@ -46,21 +29,6 @@ export class Servicios implements OnInit {
   seleccionarCategoria(categoria: string): void {
     this.categoriaSeleccionada = this.categoriaSeleccionada === categoria ? '' : categoria;
     this.actualizarResultados();
-  }
-
-  async cerrarSesion() {
-
-    try {
-
-      await this.authService.logout();
-
-      await this.router.navigate(['/login']);
-
-    } catch (error) {
-
-      console.error(error);
-
-    }
   }
 
   private actualizarResultados(): void {

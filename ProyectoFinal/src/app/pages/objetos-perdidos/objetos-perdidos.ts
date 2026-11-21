@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Layout } from '../layout/layout';
-import { Icono } from '../inicio/inicio';
+import { Icono } from '../icono/icono';
 
 function normalizar(valor: string): string {
   return valor.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').trim();

@@ -12,6 +12,12 @@ const supabase = createClient(
 })
 export class AuthService {
 
+  private correoEnCache = '';
+
+  get correoActual(): string {
+    return this.correoEnCache;
+  }
+
   // REGISTRO
   async registrar(correo: string, password: string) {
 
@@ -22,6 +28,7 @@ export class AuthService {
 
     if (error) throw error;
 
+    this.correoEnCache = data.user?.email ?? '';
     return data;
   }
 
@@ -35,6 +42,7 @@ export class AuthService {
 
     if (error) throw error;
 
+    this.correoEnCache = data.user?.email ?? '';
     return data;
   }
 
@@ -44,6 +52,8 @@ export class AuthService {
     const { error } = await supabase.auth.signOut();
 
     if (error) throw error;
+
+    this.correoEnCache = '';
   }
 
   // OBTENER USUARIO ACTUAL
@@ -53,6 +63,7 @@ export class AuthService {
 
     if (error) return null;
 
+    this.correoEnCache = data.user?.email ?? '';
     return data.user;
   }
 

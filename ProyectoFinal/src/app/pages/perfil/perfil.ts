@@ -1,7 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { AuthService } from '../core/services/auth.service';
-import { Layout } from '../pages/layout/layout';
-import { Icono } from '../pages/inicio/inicio';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { AuthService } from '../../core/services/auth.service';
+import { Layout } from '../layout/layout';
+import { Icono } from '../icono/icono';
 
 @Component({
   selector: 'app-perfil',
@@ -13,8 +13,9 @@ import { Icono } from '../pages/inicio/inicio';
 export class Perfil implements OnInit {
 
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
-  correo = '';
+  correo = this.authService.correoActual;
 
   resumen = [
     { valor: 3, etiqueta: 'Publicaciones' },
@@ -48,7 +49,11 @@ export class Perfil implements OnInit {
 
     const usuario = await this.authService.obtenerUsuario();
 
-    this.correo = usuario?.email ?? '';
+    if (usuario?.email) {
+      this.correo = usuario.email;
+    }
+
+    this.cdr.markForCheck();
 
   }
 }
