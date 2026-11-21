@@ -58,7 +58,7 @@ img { display: block; }
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  gap: 10px;
+  gap: 0;
   height: 80px;
   padding: 0 20px;
   border-bottom: 1px solid var(--color-line);
@@ -80,8 +80,10 @@ img { display: block; }
 .marca-nombre {
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
-  font-size: 17px;
+  font-size: 24px;
+  line-height: 1;
   color: var(--color-secondary);
+  transform: translateY(3px);
 }
 
 .menu {

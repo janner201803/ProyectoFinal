@@ -1,38 +1,400 @@
-:host { display: block; min-height: 100vh; background: #f8f9fa; color: #2c3e50; font-family: Inter, system-ui, sans-serif; }
-.pagina-mapa { width: min(100% - 40px, 1040px); margin: 0 auto; padding: 32px 0 64px; }
-.volver { color: #006699; font-weight: 600; text-decoration: none; }
-.encabezado-mapa { margin: 36px 0 24px; }
-.sobretitulo { color: #e31b23; font-size: 12px; font-weight: 700; letter-spacing: .12em; }
-h1, h2, p { margin-top: 0; }
-h1 { margin: 8px 0; font-size: clamp(30px, 5vw, 42px); }
-.encabezado-mapa > p:last-child { color: #6b7c8c; }
-.panel-ruta { display: grid; grid-template-columns: 1fr auto 1fr auto; align-items: end; gap: 14px; padding: 20px; border: 1px solid #e6eaee; border-radius: 16px; background: white; box-shadow: 0 2px 10px #2c3e500d; }
-.panel-ruta label { display: grid; gap: 8px; font-size: 13px; font-weight: 600; }
-.panel-ruta select { width: 100%; min-width: 0; height: 44px; padding: 0 12px; border: 1px solid #e6eaee; border-radius: 9px; background: white; color: #2c3e50; font: inherit; }
-.panel-ruta button { height: 44px; padding: 0 18px; border-radius: 9px; background: #e31b23; color: white; font: inherit; font-weight: 600; cursor: pointer; }
-.flecha-ruta { padding-bottom: 10px; color: #006699; }
-.resultado-ruta { margin-top: 16px; padding: 22px; border-radius: 14px; background: #e3f1f8; }
-.resultado-ruta h2 { margin-bottom: 14px; font-size: 18px; }
-.resultado-ruta h3 { margin: 18px 0 10px; font-size: 15px; }
-.resultado-ruta ol { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 18px; padding: 0; list-style: none; counter-reset: pasos; }
-.resultado-ruta li { padding: 8px 12px; border: 1px solid #c4dce9; border-radius: 999px; background: white; font-size: 14px; }
-.resultado-ruta li + li::before { content: '→ '; margin-right: 6px; color: #006699; }
-.resultado-ruta ol.instrucciones-ruta { display: grid; gap: 8px; padding-left: 22px; list-style: decimal; }
-.resultado-ruta ol.instrucciones-ruta li { padding: 0; border: 0; border-radius: 0; background: transparent; line-height: 1.5; }
-.resultado-ruta ol.instrucciones-ruta li + li::before { content: none; }
-.nota-mapa { margin: 0 0 8px; color: #536575; font-size: 13px; }
-.resultado-ruta a { color: #006699; font-weight: 600; }
-.mapa-imagen { width: min(100%, 680px); margin: 20px auto 0; padding: 14px; border: 1px solid #e6eaee; border-radius: 16px; background: white; }
-.mapa-lienzo { position: relative; width: 100%; aspect-ratio: 640 / 852; overflow: hidden; }
-.mapa-lienzo img, .ruta-overlay { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
-.mapa-lienzo img { object-fit: fill; }
-.ruta-overlay { pointer-events: none; overflow: visible; }
-.ruta-borde, .ruta-trazo { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.ruta-borde { stroke: white; stroke-width: 12; }
-.ruta-trazo { stroke: #1675f8; stroke-width: 7; filter: drop-shadow(0 1px 2px #12365caa); }
-.marcador-origen, .marcador-destino { stroke: white; stroke-width: 3; }
-.marcador-origen { fill: #168f58; }
-.marcador-destino { fill: #e31b23; }
-.marcador-texto { fill: white; font: 700 11px Inter, system-ui, sans-serif; text-anchor: middle; }
-.mapa-imagen figcaption { padding-top: 10px; color: #6b7c8c; font-size: 13px; }
-@media (max-width: 650px) { .pagina-mapa { width: min(100% - 28px, 1040px); padding-top: 22px; } .panel-ruta { grid-template-columns: 1fr; } .flecha-ruta { display: none; } }
+:host {
+  display: block;
+}
+
+* { box-sizing: border-box; }
+
+h1, h2, h3, p, ol { margin: 0; padding: 0; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+
+.encabezado {
+  padding: 4px 0 4px 16px;
+  border-left: 4px solid var(--color-primary);
+}
+
+.sobretitulo {
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+h1 {
+  margin: 4px 0 6px;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(26px, 3.4vw, 34px);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.descripcion {
+  max-width: 62ch;
+  color: var(--color-muted);
+}
+
+.rejilla {
+  display: grid;
+  grid-template-columns: minmax(320px, 440px) minmax(0, 1fr);
+  align-items: start;
+  gap: 20px;
+}
+
+.instrucciones-ruta {
+  display: grid;
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
+  counter-reset: paso;
+}
+
+.instrucciones-ruta li {
+  position: relative;
+  min-height: 28px;
+  padding: 0 0 18px 44px;
+  font-size: 14px;
+  line-height: 1.55;
+  counter-increment: paso;
+}
+
+.instrucciones-ruta li::before {
+  content: counter(paso);
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-secondary);
+  color: var(--color-white);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.instrucciones-ruta li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 34px;
+  bottom: 4px;
+  left: 13px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--color-line);
+}
+
+.instrucciones-ruta li:last-child {
+  padding-bottom: 0;
+}
+
+.columna-ruta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.panel {
+  padding: 20px;
+  border-radius: 14px;
+  background: var(--color-white);
+  box-shadow: var(--sombra);
+}
+
+.panel-cabecera {
+  margin-bottom: 16px;
+}
+
+.panel-cabecera h2 {
+  display: inline-block;
+  padding-left: 12px;
+  border-left: 4px solid var(--color-primary);
+  font-family: 'Poppins', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.campo {
+  display: grid;
+  gap: 8px;
+}
+
+.etiqueta-campo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.insignia {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: var(--color-white);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.insignia-a {
+  background: var(--color-text);
+}
+
+.insignia-b {
+  background: var(--color-primary);
+}
+
+select {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 14px;
+  border: 1.5px solid var(--color-line);
+  border-radius: 12px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--color-secondary);
+  background: var(--color-white);
+  box-shadow: 0 0 0 4px rgba(0, 102, 153, 0.15);
+}
+
+.boton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 48px;
+  margin-top: 4px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(227, 27, 35, 0.28);
+  transition: background 0.15s, transform 0.1s;
+}
+
+.boton:hover {
+  background: var(--color-primary-dark);
+}
+
+.boton:active {
+  transform: scale(0.98);
+}
+
+.boton svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.recorrido {
+  margin-bottom: 18px;
+  list-style: none;
+}
+
+.recorrido li {
+  position: relative;
+  padding: 0 0 14px 30px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.recorrido li::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  width: 14px;
+  height: 14px;
+  border: 3px solid var(--color-secondary);
+  border-radius: 50%;
+  background: var(--color-white);
+}
+
+.recorrido li::after {
+  content: '';
+  position: absolute;
+  top: 19px;
+  bottom: -1px;
+  left: 10px;
+  width: 2px;
+  background: var(--color-line);
+}
+
+.recorrido li:last-child {
+  padding-bottom: 0;
+}
+
+.recorrido li:last-child::after {
+  display: none;
+}
+
+.recorrido li:first-child::before {
+  border-color: var(--color-text);
+  background: var(--color-text);
+}
+
+.recorrido li:last-child::before {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+h3 {
+  margin-bottom: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-line);
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.mensaje {
+  margin-bottom: 16px;
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+.nota-mapa {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-left: 4px solid var(--color-secondary);
+  border-radius: 8px;
+  background: var(--color-secondary-soft);
+  color: var(--color-text);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.enlace-oficial {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  margin-inline: auto;
+  padding: 9px 18px;
+  border: 1.5px solid var(--color-secondary);
+  border-radius: 999px;
+  color: var(--color-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.enlace-oficial:hover {
+  background: var(--color-secondary-soft);
+}
+
+.mapa-imagen {
+  width: 100%;
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--color-white);
+  box-shadow: var(--sombra);
+}
+
+.mapa-lienzo {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 640 / 852;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.mapa-lienzo img,
+.ruta-overlay {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.mapa-lienzo img {
+  object-fit: fill;
+}
+
+.ruta-overlay {
+  pointer-events: none;
+  overflow: visible;
+}
+
+.ruta-borde,
+.ruta-trazo {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ruta-borde {
+  stroke: #FFFFFF;
+  stroke-width: 12;
+}
+
+.ruta-trazo {
+  stroke: #006699;
+  stroke-width: 7;
+  filter: drop-shadow(0 1px 2px rgba(18, 54, 92, 0.67));
+}
+
+.marcador-origen,
+.marcador-destino {
+  stroke: #FFFFFF;
+  stroke-width: 3;
+}
+
+.marcador-origen {
+  fill: #2C3E50;
+}
+
+.marcador-destino {
+  fill: #E31B23;
+}
+
+.marcador-texto {
+  fill: #FFFFFF;
+  font: 700 11px Inter, system-ui, sans-serif;
+  text-anchor: middle;
+}
+
+.mapa-imagen figcaption {
+  padding-top: 12px;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+@media (max-width: 1100px) {
+  .rejilla {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
