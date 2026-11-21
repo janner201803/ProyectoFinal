@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { CampusMapService, CampusRoute } from '../../core/services/campus-map.service';
+import { Layout } from '../layout/layout';
 
 @Component({
   selector: 'app-mapa',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, Layout],
   templateUrl: './mapa.html',
   styleUrl: './mapa.css'
 })
