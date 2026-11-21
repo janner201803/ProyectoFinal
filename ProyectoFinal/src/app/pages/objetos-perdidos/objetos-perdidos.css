@@ -85,6 +85,65 @@ h1 {
   font-size: 13px;
 }
 
+.formulario-publicacion {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 22px;
+  padding: 20px;
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  background: var(--color-white);
+  box-shadow: var(--sombra);
+}
+
+.formulario-publicacion h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 18px;
+}
+
+.formulario-publicacion label {
+  display: grid;
+  gap: 6px;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.formulario-publicacion input,
+.formulario-publicacion select,
+.formulario-publicacion textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 9px;
+  background: var(--color-white);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.formulario-publicacion input:focus,
+.formulario-publicacion select:focus,
+.formulario-publicacion textarea:focus {
+  outline: 2px solid var(--color-secondary-soft);
+  border-color: var(--color-secondary);
+}
+
+.formulario-fila {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.estado-mensaje {
+  margin-bottom: 14px;
+  color: var(--color-secondary);
+  font-size: 14px;
+}
+
+.estado-mensaje.error {
+  color: var(--color-primary);
+}
+
 .rejilla {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;
@@ -218,6 +277,12 @@ h1 {
   background: linear-gradient(135deg, var(--color-secondary-soft), var(--color-primary-soft));
   color: var(--color-secondary);
   font-size: 40px;
+}
+
+.tarjeta-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .tarjeta-imagen .etiqueta {
@@ -398,6 +463,10 @@ h1 {
   }
 
   .tarjetas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .formulario-fila {
     grid-template-columns: minmax(0, 1fr);
   }
 }

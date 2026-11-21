@@ -111,6 +111,47 @@ img { display: block; }
   background: var(--color-primary-dark);
 }
 
+.editor-perfil {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: var(--color-white);
+  box-shadow: var(--sombra);
+}
+
+.editor-perfil label {
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.editor-perfil input {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 9px;
+  font: inherit;
+}
+
+.editor-perfil .boton {
+  margin-top: 0;
+}
+
+.mensaje-perfil {
+  padding: 12px 0;
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+.mensaje-perfil.error {
+  color: var(--color-primary);
+}
+
 .rejilla {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;

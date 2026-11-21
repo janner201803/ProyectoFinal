@@ -56,7 +56,7 @@
               </header>
 
               <ul class="notificaciones-lista">
-                @for (n of notificaciones; track n.titulo) {
+                @for (n of notificaciones; track n.id) {
                   <li>
                     <a class="notificacion" [class.sin-leer]="!n.leida" [routerLink]="n.ruta" (click)="abrir(n)">
                       <span class="notificacion-icono"><app-icono [nombre]="icono(n.tipo)" /></span>
@@ -70,6 +70,8 @@
                       }
                     </a>
                   </li>
+                } @empty {
+                  <li class="sin-notificaciones">No tienes notificaciones.</li>
                 }
               </ul>
             </section>

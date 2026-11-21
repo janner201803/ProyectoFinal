@@ -6,15 +6,47 @@
       <h1>Objetos perdidos</h1>
       <p class="descripcion">Publica lo que perdiste o encontraste y ayuda a otros estudiantes.</p>
     </div>
-    <button type="button" class="boton boton-primario">
+    <button type="button" class="boton boton-primario" (click)="mostrarFormulario = !mostrarFormulario">
       <span class="mas" aria-hidden="true">+</span>
-      Publicar objeto
+      {{ mostrarFormulario ? 'Cancelar' : 'Publicar objeto' }}
     </button>
   </header>
 
   <div class="rejilla">
 
     <section class="columna">
+      @if (mostrarFormulario) {
+        <form class="formulario-publicacion" (ngSubmit)="publicar()" #formObjeto="ngForm">
+          <h2>Publicar objeto</h2>
+          <div class="formulario-fila">
+            <label>Nombre del objeto
+              <input name="title" [(ngModel)]="formulario.title" required maxlength="120" />
+            </label>
+            <label>Estado
+              <select name="status" [(ngModel)]="formulario.status" required>
+                <option value="Perdido">Perdido</option>
+                <option value="Encontrado">Encontrado</option>
+              </select>
+            </label>
+          </div>
+          <label>Descripción
+            <textarea name="description" [(ngModel)]="formulario.description" rows="3" required maxlength="500"></textarea>
+          </label>
+          <label>Lugar donde se perdió o encontró
+            <input name="location" [(ngModel)]="formulario.location" required maxlength="120" />
+          </label>
+          <label>Imagen del objeto (máximo 5 MB)
+            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" required (change)="seleccionarImagen($event)" />
+          </label>
+          <button type="submit" class="boton boton-primario" [disabled]="!formObjeto.form.valid || !imagen || publicando">
+            {{ publicando ? 'Publicando...' : 'Publicar' }}
+          </button>
+        </form>
+      }
+
+      @if (error) { <p class="estado-mensaje error" role="alert">{{ error }}</p> }
+      @if (mensaje) { <p class="estado-mensaje" role="status">{{ mensaje }}</p> }
+
       <div class="herramientas">
         <label class="busqueda">
           <app-icono nombre="buscar" />
@@ -44,32 +76,38 @@
         <h2>{{ visibles.length }} publicaciones</h2>
       </header>
 
-      @if (visibles.length) {
+      @if (cargando) {
+        <p class="sin-resultados">Cargando publicaciones…</p>
+      } @else if (visibles.length) {
         <div class="tarjetas">
-          @for (objeto of visibles; track objeto.nombre) {
+          @for (objeto of visibles; track objeto.id) {
             <article class="tarjeta">
               <div class="tarjeta-imagen">
-                <app-icono nombre="buscar" />
+                @if (objeto.image_url) {
+                  <img [src]="objeto.image_url" [alt]="objeto.title" />
+                } @else {
+                  <app-icono nombre="buscar" />
+                }
                 <span
                   class="etiqueta"
-                  [class.etiqueta-azul]="objeto.estado === 'Encontrado'"
-                  [class.etiqueta-roja]="objeto.estado === 'Perdido'"
+                  [class.etiqueta-azul]="objeto.status === 'Encontrado'"
+                  [class.etiqueta-roja]="objeto.status === 'Perdido'"
                 >
-                  {{ objeto.estado }}
+                  {{ objeto.status }}
                 </span>
               </div>
 
               <div class="tarjeta-cuerpo">
-                <h3>{{ objeto.nombre }}</h3>
-                <p class="tarjeta-descripcion">{{ objeto.detalle }}</p>
-                <p class="dato"><app-icono nombre="mapa" /> {{ objeto.lugar }}</p>
+                <h3>{{ objeto.title }}</h3>
+                <p class="tarjeta-descripcion">{{ objeto.description }}</p>
+                <p class="dato"><app-icono nombre="mapa" /> {{ objeto.location }}</p>
                 <p class="dato"><app-icono nombre="reloj" /> {{ objeto.tiempo }}</p>
               </div>
 
               <footer class="tarjeta-pie">
                 <span class="autor">
-                  <span class="avatar-chico">{{ objeto.autor.charAt(0) }}</span>
-                  {{ objeto.autor }}
+                  <span class="avatar-chico">{{ objeto.author_name.charAt(0) }}</span>
+                  {{ objeto.author_name }}
                 </span>
                 <button type="button" class="boton boton-secundario boton-chico">
                   <app-icono nombre="chat" />

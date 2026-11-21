@@ -1,15 +1,18 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { NotificacionRecord, NotificacionesService } from '../../core/services/notificaciones.service';
 import { Icono } from '../icono/icono';
 
 interface Notificacion {
+  id: string;
   titulo: string;
   detalle: string;
   tiempo: string;
   ruta: string;
   tipo: 'mensaje' | 'evento' | 'publicacion';
   leida: boolean;
+  creada: string;
 }
 
 @Component({
@@ -19,42 +22,21 @@ interface Notificacion {
   templateUrl: './layout.html',
   styleUrl: './layout.css'
 })
-export class Layout implements OnInit {
+export class Layout implements OnInit, OnDestroy {
 
   @Input() activo = 'inicio';
 
   private authService = inject(AuthService);
+  private notificacionesService = inject(NotificacionesService);
+  private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
+  private usuarioId = '';
+  private dejarDeEscuchar?: () => void;
 
   correo = this.authService.correoActual;
   abierto = false;
 
-  notificaciones: Notificacion[] = [
-    {
-      titulo: 'Nuevo mensaje',
-      detalle: 'Laura M. respondió a tu conversación.',
-      tiempo: 'Hace 5 min',
-      ruta: '/chat',
-      tipo: 'mensaje',
-      leida: false
-    },
-    {
-      titulo: 'Evento próximo',
-      detalle: 'Feria de Bienestar Universitario · 15 de noviembre.',
-      tiempo: 'Hace 1 h',
-      ruta: '/eventos',
-      tipo: 'evento',
-      leida: false
-    },
-    {
-      titulo: 'Objeto actualizado',
-      detalle: 'Tu publicación "Morral negro" recibió una respuesta.',
-      tiempo: 'Ayer',
-      ruta: '/objetos-perdidos',
-      tipo: 'publicacion',
-      leida: true
-    }
-  ];
+  notificaciones: Notificacion[] = [];
 
   menu = [
     { clave: 'inicio', etiqueta: 'Inicio', icono: 'inicio', ruta: '/inicio' },
@@ -67,10 +49,13 @@ export class Layout implements OnInit {
   ];
 
   get iniciales(): string {
-    return (this.correo.slice(0, 2) || 'U').toUpperCase();
+    const partes = this.nombre.split(/\s+/).filter(Boolean);
+    if (partes.length > 1) return `${partes[0][0]}${partes[1][0]}`.toUpperCase();
+    return (partes[0]?.slice(0, 2) || 'U').toUpperCase();
   }
 
   get nombre(): string {
+    if (this.authService.nombreActual) return this.authService.nombreActual;
     const base = this.correo.split('@')[0] ?? '';
     const primera = base.split(/[._-]/)[0] ?? '';
     return primera ? primera.charAt(0).toUpperCase() + primera.slice(1) : 'Estudiante';
@@ -88,11 +73,18 @@ export class Layout implements OnInit {
     this.notificaciones.forEach((notificacion) => {
       notificacion.leida = true;
     });
+    if (this.usuarioId) {
+      void this.notificacionesService.marcarTodasLeidas(this.usuarioId).catch(() => this.cargarNotificaciones());
+    }
   }
 
   abrir(notificacion: Notificacion): void {
     notificacion.leida = true;
     this.abierto = false;
+    if (this.usuarioId) {
+      void this.notificacionesService.marcarLeida(notificacion.id, this.usuarioId)
+        .catch(() => this.cargarNotificaciones());
+    }
   }
 
   icono(tipo: Notificacion['tipo']): string {
@@ -114,6 +106,63 @@ export class Layout implements OnInit {
       this.correo = usuario.email;
     }
 
+    if (usuario) {
+      this.usuarioId = usuario.id;
+      this.dejarDeEscuchar = this.notificacionesService.escucharNuevas(usuario.id, (record) => {
+        this.notificaciones = this.combinarNotificaciones([...this.notificaciones, this.aVista(record)]);
+        this.cdr.markForCheck();
+      });
+      await this.cargarNotificaciones();
+    }
+
+  }
+
+  ngOnDestroy(): void {
+    this.dejarDeEscuchar?.();
+  }
+
+  private async cargarNotificaciones(): Promise<void> {
+    if (!this.usuarioId) return;
+    try {
+      const records = await this.notificacionesService.listar(this.usuarioId);
+      this.notificaciones = this.combinarNotificaciones([
+        ...records.map((record) => this.aVista(record)),
+        ...this.notificaciones
+      ]);
+      this.cdr.markForCheck();
+    } catch (error) {
+      console.error('No se pudieron cargar las notificaciones.', error);
+    }
+  }
+
+  private combinarNotificaciones(items: Notificacion[]): Notificacion[] {
+    const unicas = new Map(items.map((notificacion) => [notificacion.id, notificacion]));
+    return [...unicas.values()]
+      .sort((a, b) => new Date(b.creada).getTime() - new Date(a.creada).getTime())
+      .slice(0, 20);
+  }
+
+  private aVista(record: NotificacionRecord): Notificacion {
+    return {
+      id: record.id,
+      titulo: record.title,
+      detalle: record.body,
+      tiempo: this.tiempoTranscurrido(record.created_at),
+      ruta: record.route,
+      tipo: record.type,
+      leida: record.read_at !== null,
+      creada: record.created_at
+    };
+  }
+
+  private tiempoTranscurrido(fecha: string): string {
+    const minutos = Math.max(0, Math.floor((Date.now() - new Date(fecha).getTime()) / 60_000));
+    if (minutos < 1) return 'Ahora';
+    if (minutos < 60) return `Hace ${minutos} min`;
+    const horas = Math.floor(minutos / 60);
+    if (horas < 24) return `Hace ${horas} h`;
+    const dias = Math.floor(horas / 24);
+    return dias === 1 ? 'Ayer' : `Hace ${dias} días`;
   }
 
   async cerrarSesion() {
