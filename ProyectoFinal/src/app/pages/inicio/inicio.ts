@@ -1,19 +1,30 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { ObjetoPerdidoRecord, ObjetosPerdidosService } from '../../core/services/objetos-perdidos.service';
 import { Layout } from '../layout/layout';
 import { Icono } from '../icono/icono';
+
+interface ObjetoReciente {
+  id: string;
+  nombre: string;
+  detalle: string;
+  estado: 'Perdido' | 'Encontrado';
+  tiempo: string;
+  imagen: string | null;
+}
 
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [Layout, Icono],
+  imports: [Layout, Icono, RouterLink],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css'
 })
 export class Inicio implements OnInit {
 
   private authService = inject(AuthService);
+  private objetosService = inject(ObjetosPerdidosService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
@@ -42,10 +53,8 @@ export class Inicio implements OnInit {
 
   eventoActual = 0;
 
-  objetos = [
-    { nombre: 'Morral negro', detalle: 'Encontrado en la biblioteca.', estado: 'Encontrado', tiempo: 'Hace 2 horas' },
-    { nombre: 'Audífonos inalámbricos', detalle: 'Perdidos en el edificio C.', estado: 'Perdido', tiempo: 'Hace 1 día' }
-  ];
+  objetos: ObjetoReciente[] = [];
+  cargandoObjetos = true;
 
   actividad = [
     { texto: 'Tienes 2 mensajes nuevos', icono: 'mensaje', tono: 'azul' },
@@ -60,6 +69,7 @@ export class Inicio implements OnInit {
   }
 
   async ngOnInit() {
+    void this.cargarObjetos();
 
     const usuario = await this.authService.obtenerUsuario();
 
@@ -68,7 +78,6 @@ export class Inicio implements OnInit {
     }
 
     this.cdr.markForCheck();
-
   }
 
   ejecutar(accion?: string): void {
@@ -80,5 +89,38 @@ export class Inicio implements OnInit {
 
   seleccionarEvento(indice: number): void {
     this.eventoActual = indice;
+  }
+
+  private async cargarObjetos(): Promise<void> {
+    try {
+      const registros = await this.objetosService.listar();
+      this.objetos = registros.slice(0, 3).map((registro) => this.aVista(registro));
+    } catch {
+      this.objetos = [];
+    } finally {
+      this.cargandoObjetos = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  private aVista(registro: ObjetoPerdidoRecord): ObjetoReciente {
+    return {
+      id: registro.id,
+      nombre: registro.title,
+      detalle: `${registro.status === 'Encontrado' ? 'Encontrado' : 'Perdido'} en ${registro.location}.`,
+      estado: registro.status,
+      tiempo: this.tiempoTranscurrido(registro.created_at),
+      imagen: registro.image_url
+    };
+  }
+
+  private tiempoTranscurrido(fecha: string): string {
+    const minutos = Math.max(0, Math.floor((Date.now() - new Date(fecha).getTime()) / 60_000));
+    if (minutos < 1) return 'Ahora';
+    if (minutos < 60) return `Hace ${minutos} min`;
+    const horas = Math.floor(minutos / 60);
+    if (horas < 24) return `Hace ${horas} h`;
+    const dias = Math.floor(horas / 24);
+    return dias === 1 ? 'Ayer' : `Hace ${dias} días`;
   }
 }
