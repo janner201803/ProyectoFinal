@@ -1,17 +1,23 @@
-<main class="pagina-servicios">
-  <a class="volver" routerLink="/inicio">← Volver al inicio</a>
-  <header class="encabezado-servicios">
-    <p class="sobretitulo">UNICONNECT · CAMPUS</p>
+<app-layout activo="servicios">
+
+  <header class="encabezado">
+    <p class="sobretitulo">UAO VIBE · CAMPUS</p>
     <h1>Servicios universitarios</h1>
-    <p>Encuentra dónde ir y qué ofrece cada servicio de la UAO.</p>
+    <p class="descripcion">Encuentra dónde ir y qué ofrece cada servicio de la UAO.</p>
   </header>
 
-  <label class="busqueda-servicios">
-    <span aria-hidden="true">⌕</span>
-    <input type="search" [value]="query" (input)="buscar($any($event.target).value)" placeholder="Busca por servicio o palabra clave" aria-label="Buscar servicios" />
+  <label class="busqueda">
+    <app-icono nombre="buscar" />
+    <input
+      type="search"
+      [value]="query"
+      (input)="buscar($any($event.target).value)"
+      placeholder="Busca por servicio o palabra clave"
+      aria-label="Buscar servicios"
+    />
   </label>
 
-  <section class="categorias-servicios" aria-label="Filtrar por categoría">
+  <section class="categorias" aria-label="Filtrar por categoría">
     <button type="button" [class.seleccionada]="!categoriaSeleccionada" (click)="seleccionarCategoria('')">Todos</button>
     @for (categoria of categorias; track categoria.label) {
       <button type="button" [class.seleccionada]="categoriaSeleccionada === categoria.label" (click)="seleccionarCategoria(categoria.label)">
@@ -20,16 +26,22 @@
     }
   </section>
 
-  <section class="resultados-servicios" aria-live="polite">
-    <h2>{{ resultados.length }} servicios disponibles</h2>
+  <section class="resultados" aria-live="polite">
+    <header class="panel-cabecera">
+      <h2>{{ resultados.length }} servicios disponibles</h2>
+    </header>
+
     @if (resultados.length) {
-      <div class="tarjetas-servicios">
+      <div class="tarjetas">
         @for (servicio of resultados; track servicio.name) {
-          <article class="tarjeta-servicio">
-            <span class="categoria-servicio">{{ servicio.category }}</span>
+          <article class="tarjeta">
+            <div class="tarjeta-cabecera">
+              <span class="tarjeta-icono"><app-icono nombre="servicios" /></span>
+              <span class="etiqueta">{{ servicio.category }}</span>
+            </div>
             <h3>{{ servicio.name }}</h3>
-            <p>{{ servicio.description }}</p>
-            <p class="ubicacion-servicio">⌖ {{ servicio.location }}</p>
+            <p class="tarjeta-descripcion">{{ servicio.description }}</p>
+            <p class="dato"><app-icono nombre="mapa" /> {{ servicio.location }}</p>
           </article>
         }
       </div>
@@ -37,4 +49,5 @@
       <p class="sin-resultados">No encontramos servicios con esa búsqueda. Prueba con otra palabra.</p>
     }
   </section>
-</main>
+
+</app-layout>

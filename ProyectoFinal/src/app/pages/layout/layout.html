@@ -1,0 +1,104 @@
+<div class="app">
+  <aside class="lateral">
+    <div class="marca">
+      <img class="marca-logo" src="img/logo.png" alt="UAO" />
+      <span class="marca-linea"></span>
+      <span class="marca-nombre">UAO Vibe</span>
+    </div>
+
+    <nav class="menu" aria-label="Navegación principal">
+      @for (item of menu; track item.clave) {
+        <a
+          class="menu-item"
+          [class.activo]="item.clave === activo"
+          [routerLink]="item.ruta"
+          [attr.aria-current]="item.clave === activo ? 'page' : null"
+        >
+          <app-icono [nombre]="item.icono" />
+          <span>{{ item.etiqueta }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="menu-salir">
+      <button type="button" class="menu-item" (click)="cerrarSesion()">
+        <app-icono nombre="salir" />
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
+
+    <div class="lateral-arco" aria-hidden="true"></div>
+  </aside>
+
+  <div class="principal">
+    <header class="barra">
+      <div class="barra-acciones">
+
+        <div class="campana-contenedor">
+          <button
+            type="button"
+            class="campana"
+            aria-label="Notificaciones"
+            [attr.aria-expanded]="abierto"
+            (click)="alternar()"
+          >
+            <app-icono nombre="campana" />
+            @if (noLeidas) {
+              <span class="campana-punto"></span>
+            }
+          </button>
+
+          @if (abierto) {
+            <section class="notificaciones" role="dialog" aria-label="Notificaciones">
+              <header class="notificaciones-cabecera">
+                <h2>Notificaciones</h2>
+                <button type="button" class="marcar" (click)="marcarTodas()">Marcar todas como leídas</button>
+              </header>
+
+              <ul class="notificaciones-lista">
+                @for (n of notificaciones; track n.id) {
+                  <li>
+                    <a class="notificacion" [class.sin-leer]="!n.leida" [routerLink]="n.ruta" (click)="abrir(n)">
+                      <span class="notificacion-icono"><app-icono [nombre]="icono(n.tipo)" /></span>
+                      <span class="notificacion-texto">
+                        <strong>{{ n.titulo }}</strong>
+                        <small>{{ n.detalle }}</small>
+                        <em>{{ n.tiempo }}</em>
+                      </span>
+                      @if (!n.leida) {
+                        <i class="notificacion-punto" aria-label="Sin leer"></i>
+                      }
+                    </a>
+                  </li>
+                } @empty {
+                  <li class="sin-notificaciones">No tienes notificaciones.</li>
+                }
+              </ul>
+            </section>
+          }
+        </div>
+
+        <a class="usuario" routerLink="/perfil">
+          <span class="avatar">{{ iniciales }}</span>
+          <span class="usuario-nombre">{{ nombre }}</span>
+          <app-icono nombre="abajo" />
+        </a>
+
+      </div>
+    </header>
+
+    <main class="contenido">
+      <ng-content></ng-content>
+    </main>
+
+    <footer class="pie">
+      <div class="pie-marca">
+        <img class="marca-logo" src="img/logo.png" alt="UAO" />
+        <span class="marca-linea"></span>
+        <span class="pie-universidad">Universidad Autónoma<br />de Occidente</span>
+      </div>
+      <p class="pie-lema">UAO Vibe &nbsp;•&nbsp; Conectando nuestra comunidad</p>
+    </footer>
+  </div>
+
+</div>

@@ -1,0 +1,153 @@
+<app-layout activo="objetos-perdidos">
+
+  <header class="encabezado">
+    <div class="encabezado-texto">
+      <p class="sobretitulo">UAO VIBE · CAMPUS</p>
+      <h1>Objetos perdidos</h1>
+      <p class="descripcion">Publica lo que perdiste o encontraste y ayuda a otros estudiantes.</p>
+    </div>
+    <button type="button" class="boton boton-primario" (click)="mostrarFormulario = !mostrarFormulario">
+      <span class="mas" aria-hidden="true">+</span>
+      {{ mostrarFormulario ? 'Cancelar' : 'Publicar objeto' }}
+    </button>
+  </header>
+
+  <div class="rejilla">
+
+    <section class="columna">
+      @if (mostrarFormulario) {
+        <form class="formulario-publicacion" (ngSubmit)="publicar()" #formObjeto="ngForm">
+          <h2>Publicar objeto</h2>
+          <div class="formulario-fila">
+            <label>Nombre del objeto
+              <input name="title" [(ngModel)]="formulario.title" required maxlength="120" />
+            </label>
+            <label>Estado
+              <select name="status" [(ngModel)]="formulario.status" required>
+                <option value="Perdido">Perdido</option>
+                <option value="Encontrado">Encontrado</option>
+              </select>
+            </label>
+          </div>
+          <label>Descripción
+            <textarea name="description" [(ngModel)]="formulario.description" rows="3" required maxlength="500"></textarea>
+          </label>
+          <label>Lugar donde se perdió o encontró
+            <input name="location" [(ngModel)]="formulario.location" required maxlength="120" />
+          </label>
+          <label>Imagen del objeto (máximo 5 MB)
+            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" required (change)="seleccionarImagen($event)" />
+          </label>
+          <button type="submit" class="boton boton-primario" [disabled]="!formObjeto.form.valid || !imagen || publicando">
+            {{ publicando ? 'Publicando...' : 'Publicar' }}
+          </button>
+        </form>
+      }
+
+      @if (error) { <p class="estado-mensaje error" role="alert">{{ error }}</p> }
+      @if (mensaje) { <p class="estado-mensaje" role="status">{{ mensaje }}</p> }
+
+      <div class="herramientas">
+        <label class="busqueda">
+          <app-icono nombre="buscar" />
+          <input
+            type="search"
+            [value]="busqueda"
+            (input)="buscar($any($event.target).value)"
+            placeholder="Busca por objeto o lugar"
+            aria-label="Buscar objetos"
+          />
+        </label>
+
+        <div class="filtros" aria-label="Filtrar por estado">
+          <button type="button" [class.seleccionada]="!filtro" (click)="filtrar('')">
+            Todos <span>{{ objetos.length }}</span>
+          </button>
+          <button type="button" [class.seleccionada]="filtro === 'Perdido'" (click)="filtrar('Perdido')">
+            Perdidos <span>{{ contar('Perdido') }}</span>
+          </button>
+          <button type="button" [class.seleccionada]="filtro === 'Encontrado'" (click)="filtrar('Encontrado')">
+            Encontrados <span>{{ contar('Encontrado') }}</span>
+          </button>
+        </div>
+      </div>
+
+      <header class="panel-cabecera">
+        <h2>{{ visibles.length }} publicaciones</h2>
+      </header>
+
+      @if (cargando) {
+        <p class="sin-resultados">Cargando publicaciones…</p>
+      } @else if (visibles.length) {
+        <div class="tarjetas">
+          @for (objeto of visibles; track objeto.id) {
+            <article class="tarjeta">
+              <div class="tarjeta-imagen">
+                @if (objeto.image_url) {
+                  <img [src]="objeto.image_url" [alt]="objeto.title" />
+                } @else {
+                  <app-icono nombre="buscar" />
+                }
+                <span
+                  class="etiqueta"
+                  [class.etiqueta-azul]="objeto.status === 'Encontrado'"
+                  [class.etiqueta-roja]="objeto.status === 'Perdido'"
+                >
+                  {{ objeto.status }}
+                </span>
+              </div>
+
+              <div class="tarjeta-cuerpo">
+                <h3>{{ objeto.title }}</h3>
+                <p class="tarjeta-descripcion">{{ objeto.description }}</p>
+                <p class="dato"><app-icono nombre="mapa" /> {{ objeto.location }}</p>
+                <p class="dato"><app-icono nombre="reloj" /> {{ objeto.tiempo }}</p>
+              </div>
+
+              <footer class="tarjeta-pie">
+                <span class="autor">
+                  <span class="avatar-chico">{{ objeto.author_name.charAt(0) }}</span>
+                  {{ objeto.author_name }}
+                </span>
+                <button type="button" class="boton boton-secundario boton-chico">
+                  <app-icono nombre="chat" />
+                  Contactar
+                </button>
+              </footer>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="sin-resultados">No encontramos publicaciones con esa búsqueda.</p>
+      }
+    </section>
+
+    <aside class="derecha">
+      <article class="panel">
+        <header class="panel-cabecera">
+          <h2>Solicitudes pendientes</h2>
+        </header>
+        <ul class="solicitudes">
+          @for (solicitud of solicitudes; track solicitud.titulo) {
+            <li>
+              <div class="solicitud-info">
+                <h3>{{ solicitud.titulo }}</h3>
+                <p>{{ solicitud.detalle }}</p>
+              </div>
+              <span
+                class="prioridad"
+                [class.alta]="solicitud.prioridad === 'Alta'"
+                [class.media]="solicitud.prioridad === 'Media'"
+                [class.baja]="solicitud.prioridad === 'Baja'"
+              >
+                {{ solicitud.prioridad }}
+              </span>
+            </li>
+          }
+        </ul>
+      </article>
+    </aside>
+
+  </div>
+
+</app-layout>

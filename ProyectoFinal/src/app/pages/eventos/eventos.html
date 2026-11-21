@@ -1,0 +1,150 @@
+<app-layout activo="eventos">
+
+  <header class="encabezado">
+    <div class="encabezado-texto">
+      <p class="sobretitulo">UAO VIBE · CAMPUS</p>
+      <h1>Eventos</h1>
+      <p class="descripcion">Entérate de las actividades de la universidad e inscríbete en las que te interesen.</p>
+    </div>
+    <button type="button" class="boton boton-primario boton-crear" (click)="mostrarFormulario = !mostrarFormulario">
+      {{ mostrarFormulario ? 'Cancelar' : '+ Crear evento' }}
+    </button>
+  </header>
+
+  <div class="rejilla">
+
+    <section class="columna">
+      @if (mostrarFormulario) {
+        <form class="formulario-evento" (ngSubmit)="crearEvento()" #formEvento="ngForm">
+          <h2>Crear evento</h2>
+          <label>Título
+            <input name="title" [(ngModel)]="formulario.title" required maxlength="120" />
+          </label>
+          <label>Descripción
+            <textarea name="description" [(ngModel)]="formulario.description" rows="3" maxlength="500"></textarea>
+          </label>
+          <div class="formulario-fila">
+            <label>Fecha y hora
+              <input name="startsAt" type="datetime-local" [(ngModel)]="formulario.startsAt" [min]="fechaMinima" required />
+            </label>
+            <label>Cupos disponibles
+              <input name="capacity" type="number" [(ngModel)]="formulario.capacity" min="1" step="1" required />
+            </label>
+          </div>
+          <div class="formulario-fila">
+            <label>Lugar
+              <input name="location" [(ngModel)]="formulario.location" required maxlength="120" />
+            </label>
+            <label>Categoría
+              <input name="category" [(ngModel)]="formulario.category" required maxlength="60" />
+            </label>
+          </div>
+          <button type="submit" class="boton boton-primario" [disabled]="!formEvento.form.valid || guardandoEvento">
+            {{ guardandoEvento ? 'Creando...' : 'Publicar evento' }}
+          </button>
+        </form>
+      }
+
+      <div class="filtros" aria-label="Filtrar por categoría">
+        <button type="button" [class.seleccionada]="!filtro" (click)="filtrar('')">
+          Todos <span>{{ eventos.length }}</span>
+        </button>
+        @for (categoria of categorias; track categoria) {
+          <button type="button" [class.seleccionada]="filtro === categoria" (click)="filtrar(categoria)">
+            {{ categoria }} <span>{{ contar(categoria) }}</span>
+          </button>
+        }
+      </div>
+
+      <header class="panel-cabecera">
+        <h2>{{ visibles.length }} eventos próximos</h2>
+      </header>
+
+      @if (error) { <p class="sin-inscripciones" role="alert">{{ error }}</p> }
+      @if (mensaje) { <p class="sin-inscripciones" role="status">{{ mensaje }}</p> }
+
+      <ul class="lista">
+        @if (cargando) {
+          <li class="sin-inscripciones">Cargando eventos…</li>
+        } @else if (visibles.length === 0) {
+          <li class="sin-inscripciones">No hay eventos próximos para este mes.</li>
+        } @else {
+          @for (evento of visibles; track evento.id) {
+            <li class="evento">
+              <div class="fecha">
+                <strong>{{ evento.dia }}</strong>
+                <span>{{ evento.mes }}</span>
+              </div>
+
+              <div class="evento-info">
+                <span class="etiqueta">{{ evento.categoria }}</span>
+                <h3>{{ evento.titulo }}</h3>
+                <p class="dato"><app-icono nombre="reloj" /> {{ evento.hora }}</p>
+                <p class="dato"><app-icono nombre="mapa" /> {{ evento.lugar }}</p>
+                <p class="dato">{{ evento.inscritosTotales }} / {{ evento.cupos }} cupos ocupados</p>
+              </div>
+
+              <button
+                type="button"
+                class="boton"
+                [disabled]="evento.procesando || (!evento.inscrito && evento.inscritosTotales >= evento.cupos)"
+                [class.boton-primario]="!evento.inscrito"
+                [class.boton-inscrito]="evento.inscrito"
+                (click)="alternar(evento)"
+              >
+                {{ evento.procesando ? 'Guardando...' : evento.inscrito ? '✓ Inscrito' : evento.inscritosTotales >= evento.cupos ? 'Sin cupos' : 'Inscribirme' }}
+              </button>
+            </li>
+          }
+        }
+      </ul>
+    </section>
+
+    <aside class="derecha">
+
+      <article class="panel">
+        <header class="panel-cabecera">
+          <h2>{{ nombreMes }}</h2>
+        </header>
+
+        <div class="calendario">
+          @for (letra of semana; track $index) {
+            <span class="semana">{{ letra }}</span>
+          }
+          @for (dia of dias; track $index) {
+            @if (dia) {
+              <span class="dia" [class.con-evento]="esEvento(dia)" [class.hoy]="esHoy(dia)">{{ dia }}</span>
+            } @else {
+              <span class="dia vacio"></span>
+            }
+          }
+        </div>
+      </article>
+
+      <article class="panel">
+        <header class="panel-cabecera">
+          <h2>Mis inscripciones</h2>
+        </header>
+
+        @if (inscritos.length) {
+          <ul class="inscritos">
+            @for (evento of inscritos; track evento.titulo) {
+              <li>
+                <span class="mini-fecha">{{ evento.dia }} {{ evento.mes }}</span>
+                <div class="inscrito-info">
+                  <h3>{{ evento.titulo }}</h3>
+                  <p>{{ evento.hora }} · {{ evento.lugar }}</p>
+                </div>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="sin-inscripciones">Aún no te has inscrito a ningún evento.</p>
+        }
+      </article>
+
+    </aside>
+
+  </div>
+
+</app-layout>

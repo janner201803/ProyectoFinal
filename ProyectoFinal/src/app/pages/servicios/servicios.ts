@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { CAMPUS_SERVICES, CampusService, createServiceCatalog } from '../../core/data-structures/campus-data';
+import { Layout } from '../layout/layout';
+import { Icono } from '../icono/icono';
 
 function normalize(value: string): string {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').trim();
@@ -9,7 +10,7 @@ function normalize(value: string): string {
 @Component({
   selector: 'app-servicios',
   standalone: true,
-  imports: [RouterLink],
+  imports: [Layout, Icono],
   templateUrl: './servicios.html',
   styleUrl: './servicios.css'
 })
