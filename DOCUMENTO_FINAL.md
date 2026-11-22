@@ -112,6 +112,3 @@ La aplicación depende de que estos recursos existan y tengan políticas de acce
 
 La guía de configuración local, variables y despliegue en Netlify se encuentra en el [README principal](README.md). El proyecto Angular está en `ProyectoFinal`; el comando de producción es `npm run build` y la carpeta de publicación es `dist/ProyectoFinal/browser` relativa a esa carpeta.
 
-## 7. Equipo y enlaces de entrega
-
-Los integrantes y enlaces de GitHub, propuesta gráfica Figma y frontend publicado se encuentran en el README principal. El enlace del diseño Figma debe completarse cuando el archivo final esté disponible.
