@@ -96,3 +96,6 @@ npm run build
 ```
 
 Angular genera la aplicación para publicar en `dist/ProyectoFinal/browser`.
+
+## Enlace de la pagina desplegada en Netlify
+https://uaovibe.netlify.app
