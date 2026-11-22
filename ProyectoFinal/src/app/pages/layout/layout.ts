@@ -11,6 +11,7 @@ interface Notificacion {
   tiempo: string;
   ruta: string;
   tipo: 'mensaje' | 'evento' | 'publicacion';
+  conversationId: string | null;
   leida: boolean;
   creada: string;
 }
@@ -109,7 +110,11 @@ export class Layout implements OnInit, OnDestroy {
     if (usuario) {
       this.usuarioId = usuario.id;
       this.dejarDeEscuchar = this.notificacionesService.escucharNuevas(usuario.id, (record) => {
-        this.notificaciones = this.combinarNotificaciones([...this.notificaciones, this.aVista(record)]);
+        const actualizada = this.aVista(record);
+        this.notificaciones = this.combinarNotificaciones([
+          ...this.notificaciones.filter((item) => item.id !== actualizada.id),
+          actualizada
+        ]);
         this.cdr.markForCheck();
       });
       await this.cargarNotificaciones();
@@ -150,6 +155,7 @@ export class Layout implements OnInit, OnDestroy {
       tiempo: this.tiempoTranscurrido(record.created_at),
       ruta: record.route,
       tipo: record.type,
+      conversationId: record.conversation_id,
       leida: record.read_at !== null,
       creada: record.created_at
     };

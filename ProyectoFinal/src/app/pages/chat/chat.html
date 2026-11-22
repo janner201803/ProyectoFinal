@@ -22,10 +22,24 @@
         />
       </label>
 
+      <button type="button" class="nuevo-chat" (click)="mostrarNuevoChat = !mostrarNuevoChat">
+        {{ mostrarNuevoChat ? 'Cancelar' : '+ Nuevo chat' }}
+      </button>
+      @if (mostrarNuevoChat) {
+        <form class="nuevo-chat-form" (submit)="$event.preventDefault(); iniciarContacto(emailContacto.value)">
+          <input #emailContacto type="email" name="correo" [value]="correoContacto"
+            (input)="correoContacto = $any($event.target).value"
+            placeholder="Correo del estudiante" aria-label="Correo del estudiante" required />
+          <button type="submit" [disabled]="creandoChat || !emailContacto.validity.valid">
+            {{ creandoChat ? 'Abriendo...' : 'Iniciar' }}
+          </button>
+        </form>
+      }
+
       <ul class="lista">
         @for (c of visibles; track c.id) {
           <li>
-            <button type="button" class="conversacion" [class.activa]="c.id === actual.id" (click)="seleccionar(c)">
+            <button type="button" class="conversacion" [class.activa]="c.id === seleccionada" (click)="seleccionar(c)">
               <span class="avatar-chat">
                 {{ c.nombre.charAt(0) }}
                 <i class="punto" [class.en-linea]="c.enLinea"></i>
@@ -43,47 +57,52 @@
             </button>
           </li>
         } @empty {
-          <li class="sin-resultados">No encontramos conversaciones.</li>
+          <li class="sin-resultados">{{ busqueda ? 'No encontramos conversaciones.' : 'Todavía no tienes conversaciones. Inicia un chat con el correo de otro estudiante.' }}</li>
         }
       </ul>
     </aside>
 
     <article class="activa-chat">
-      <header class="cabecera-chat">
-        <span class="avatar-chat">
-          {{ actual.nombre.charAt(0) }}
-          <i class="punto" [class.en-linea]="actual.enLinea"></i>
-        </span>
-        <div>
-          <h2>{{ actual.nombre }}</h2>
-          <p [class.en-linea-texto]="actual.enLinea">{{ actual.enLinea ? 'En línea' : 'Desconectado' }}</p>
-        </div>
-      </header>
-
-      <div class="mensajes" role="log" aria-live="polite">
-        @for (m of invertidos; track $index) {
-          <div class="burbuja" [class.mia]="m.mio">
-            <p>{{ m.texto }}</p>
-            <span>{{ m.hora }}</span>
+      @if (error) { <p class="chat-error" role="alert">{{ error }}</p> }
+      @if (cargando) {
+        <div class="chat-vacio">Cargando tus conversaciones…</div>
+      } @else if (actual; as conversacion) {
+        <header class="cabecera-chat">
+          <span class="avatar-chat">
+            {{ conversacion.nombre.charAt(0) }}
+            <i class="punto" [class.en-linea]="conversacion.enLinea"></i>
+          </span>
+          <div>
+            <h2>{{ conversacion.nombre }}</h2>
+            <p [class.en-linea-texto]="conversacion.enLinea">{{ conversacion.enLinea ? 'En línea' : 'Desconectado' }}</p>
           </div>
-        }
-      </div>
+        </header>
 
-      <div class="redactar">
-        <input
-          #caja
-          type="text"
-          placeholder="Escribe un mensaje..."
-          aria-label="Escribe un mensaje"
-          (keydown.enter)="enviar(caja.value); caja.value = ''"
-        />
-        <button type="button" class="enviar" aria-label="Enviar mensaje" (click)="enviar(caja.value); caja.value = ''">
+        <div class="mensajes" role="log" aria-live="polite">
+          @for (m of invertidos; track m.id) {
+            <div class="burbuja" [class.mia]="m.mio">
+              <p>{{ m.texto }}</p>
+              <span>{{ m.hora }}</span>
+            </div>
+          } @empty {
+            <p class="chat-vacio">Esta conversación no tiene mensajes. ¡Saluda!</p>
+          }
+        </div>
+
+        <div class="redactar">
+          <input #caja type="text" maxlength="4000" placeholder="Escribe un mensaje..." aria-label="Escribe un mensaje"
+            [disabled]="enviando" (keydown.enter)="enviar(caja)" />
+          <button type="button" class="enviar" aria-label="Enviar mensaje" [disabled]="enviando"
+            (click)="enviar(caja)">
             <svg viewBox="0 0 24 24" aria-hidden="true">
-                <line x1="22" y1="2" x2="11" y2="13" />
-                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              <line x1="22" y1="2" x2="11" y2="13" />
+              <polygon points="22 2 15 22 11 13 2 9 22 2" />
             </svg>
-        </button>
-      </div>
+          </button>
+        </div>
+      } @else {
+        <div class="chat-vacio">Selecciona una conversación o inicia un chat nuevo.</div>
+      }
     </article>
 
   </section>
