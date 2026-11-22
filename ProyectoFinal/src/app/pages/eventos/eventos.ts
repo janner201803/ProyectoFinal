@@ -35,6 +35,7 @@ export class Eventos implements OnInit, OnDestroy {
   private dejarDeEscuchar?: () => void;
 
   filtro = '';
+  seleccion: number | null = null;
   cargando = true;
   error = '';
   mensaje = '';
@@ -55,15 +56,32 @@ export class Eventos implements OnInit, OnDestroy {
     return `${mes.charAt(0).toUpperCase()}${mes.slice(1)} ${this.anio}`;
   }
 
+  get esMesActual(): boolean {
+    const hoy = new Date();
+    return hoy.getFullYear() === this.anio && hoy.getMonth() === this.mes;
+  }
+
   get categorias(): string[] {
     return [...new Set(this.eventos.map((evento) => evento.categoria))];
   }
 
   get visibles(): EventoVista[] {
     const ahora = Date.now();
-    return this.eventos.filter((evento) =>
-      evento.fechaInicio.getTime() >= ahora && (!this.filtro || evento.categoria === this.filtro)
-    );
+    return this.eventos.filter((evento) => {
+      if (this.filtro && evento.categoria !== this.filtro) return false;
+      if (this.seleccion !== null) return this.esDelDia(evento, this.seleccion);
+      return evento.fechaInicio.getTime() >= ahora;
+    });
+  }
+
+  get tituloLista(): string {
+    const total = this.visibles.length;
+    if (this.seleccion !== null) {
+      const fecha = new Date(this.anio, this.mes, this.seleccion);
+      const texto = new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'long' }).format(fecha);
+      return `${total} ${total === 1 ? 'evento' : 'eventos'} el ${texto}`;
+    }
+    return `${total} ${total === 1 ? 'evento próximo' : 'eventos próximos'}`;
   }
 
   get inscritos(): EventoVista[] {
@@ -107,9 +125,7 @@ export class Eventos implements OnInit, OnDestroy {
   }
 
   esEvento(dia: number): boolean {
-    return this.eventos.some((evento) => evento.dia === dia
-      && evento.fechaInicio.getMonth() === this.mes
-      && evento.fechaInicio.getFullYear() === this.anio);
+    return this.eventos.some((evento) => this.esDelDia(evento, dia));
   }
 
   esHoy(dia: number): boolean {
@@ -119,6 +135,25 @@ export class Eventos implements OnInit, OnDestroy {
 
   filtrar(categoria: string): void {
     this.filtro = this.filtro === categoria ? '' : categoria;
+  }
+
+  cambiarMes(delta: number): void {
+    const fecha = new Date(this.anio, this.mes + delta, 1);
+    this.anio = fecha.getFullYear();
+    this.mes = fecha.getMonth();
+    this.seleccion = null;
+  }
+
+  irAHoy(): void {
+    const hoy = new Date();
+    this.anio = hoy.getFullYear();
+    this.mes = hoy.getMonth();
+    this.seleccion = null;
+  }
+
+  seleccionarDia(dia: number): void {
+    if (!this.esEvento(dia)) return;
+    this.seleccion = this.seleccion === dia ? null : dia;
   }
 
   async alternar(evento: EventoVista): Promise<void> {
@@ -190,6 +225,12 @@ export class Eventos implements OnInit, OnDestroy {
       this.guardandoEvento = false;
       this.cdr.markForCheck();
     }
+  }
+
+  private esDelDia(evento: EventoVista, dia: number): boolean {
+    return evento.dia === dia
+      && evento.fechaInicio.getMonth() === this.mes
+      && evento.fechaInicio.getFullYear() === this.anio;
   }
 
   private formularioVacio() {

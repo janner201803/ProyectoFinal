@@ -14,17 +14,9 @@
       @if (mostrarFormulario) {
         <form class="formulario-publicacion" (ngSubmit)="publicar()" #formObjeto="ngForm">
           <h2>Publicar objeto</h2>
-          <div class="formulario-fila">
-            <label>Nombre del objeto
-              <input name="title" [(ngModel)]="formulario.title" required maxlength="120" />
-            </label>
-            <label>Estado
-              <select name="status" [(ngModel)]="formulario.status" required>
-                <option value="Perdido">Perdido</option>
-                <option value="Encontrado">Encontrado</option>
-              </select>
-            </label>
-          </div>
+          <label>Nombre del objeto
+            <input name="title" [(ngModel)]="formulario.title" required maxlength="120" />
+          </label>
           <label>Descripción
             <textarea name="description" [(ngModel)]="formulario.description" rows="3" required maxlength="500"></textarea>
           </label>

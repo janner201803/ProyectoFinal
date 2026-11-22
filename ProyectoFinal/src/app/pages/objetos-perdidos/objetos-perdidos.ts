@@ -147,6 +147,7 @@ export class ObjetosPerdidos implements OnInit, OnDestroy {
       const nombreAutor = (this.userEmail.split('@')[0] || 'Estudiante').replace(/[._-]/g, ' ');
       await this.objetosService.publicar({
         ...this.formulario,
+        status: 'Perdido',
         title: this.formulario.title.trim(),
         description: this.formulario.description.trim(),
         location: this.formulario.location.trim(),

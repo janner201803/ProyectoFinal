@@ -86,27 +86,6 @@
         </ul>
       </article>
 
-      <article class="panel">
-        <header class="panel-cabecera">
-          <h2>Privacidad</h2>
-        </header>
-        <ul class="privacidad">
-          @for (opcion of privacidad; track opcion.titulo) {
-            <li>
-              <div class="privacidad-info">
-                <h3>{{ opcion.titulo }}</h3>
-                <p>{{ opcion.detalle }}</p>
-              </div>
-              <label class="interruptor">
-                <input type="checkbox" [checked]="preferencias[opcion.key]" [disabled]="guardando || cargando"
-                  [attr.aria-label]="opcion.titulo" (change)="cambiarPrivacidad(opcion.key, $any($event.target).checked)" />
-                <span></span>
-              </label>
-            </li>
-          }
-        </ul>
-      </article>
-
     </aside>
 
   </div>

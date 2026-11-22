@@ -81,6 +81,8 @@ img { display: block; }
 }
 
 .panel {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   padding: 18px 20px;
   border-radius: 14px;
@@ -158,6 +160,26 @@ img { display: block; }
 
 .boton-chico {
   padding: 9px 20px;
+}
+
+.boton-inscrito {
+  border: 1.5px solid var(--color-secondary);
+  background: var(--color-secondary-soft);
+  color: var(--color-secondary);
+}
+
+.boton-inscrito:hover {
+  background: var(--color-white);
+}
+
+.boton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.vacio.error {
+  margin-top: 10px;
+  color: var(--color-primary);
 }
 
 .evento {
@@ -257,7 +279,8 @@ img { display: block; }
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: auto;
+  padding-top: 14px;
 }
 
 .punto {
@@ -367,24 +390,38 @@ img { display: block; }
 
 .actividad-lista {
   display: flex;
+  flex: 1;
   flex-direction: column;
+  justify-content: space-evenly;
   gap: 16px;
-  padding-bottom: 6px;
 }
 
 .actividad-lista li {
   display: flex;
   align-items: center;
-  gap: 14px;
-  font-size: 14px;
+  gap: 16px;
+  font-size: 15px;
+  font-weight: 500;
 }
 
 .actividad-icono {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 32px;
-  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  font-size: 22px;
+}
+
+.actividad-icono.azul {
+  background: var(--color-secondary-soft);
+  color: var(--color-secondary);
+}
+
+.actividad-icono.rojo {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
 }
 
 .actividad-icono.azul { color: var(--color-secondary); }

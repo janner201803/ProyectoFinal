@@ -4,8 +4,6 @@ import { PerfilPreferencias, PerfilService, PublicacionPerfil, ResumenPerfil } f
 import { Layout } from '../layout/layout';
 import { Icono } from '../icono/icono';
 
-type ClavePrivacidad = 'profile_public' | 'show_email' | 'show_publications';
-
 @Component({
   selector: 'app-perfil',
   standalone: true,
@@ -36,12 +34,6 @@ export class Perfil implements OnInit {
     show_email: true,
     show_publications: true
   };
-
-  privacidad: Array<{ key: ClavePrivacidad; titulo: string; detalle: string }> = [
-    { key: 'profile_public', titulo: 'Perfil público', detalle: 'Otros estudiantes pueden consultar tu perfil.' },
-    { key: 'show_email', titulo: 'Mostrar mi correo', detalle: 'Tu correo será visible en tu perfil.' },
-    { key: 'show_publications', titulo: 'Mostrar mis publicaciones', detalle: 'Tu historial aparecerá en tu perfil.' }
-  ];
 
   get iniciales(): string {
     const partes = this.nombre.trim().split(/\s+/).filter(Boolean);
@@ -119,26 +111,6 @@ export class Perfil implements OnInit {
       this.mensaje = 'Perfil actualizado.';
     } catch {
       this.error = 'No se pudo guardar el nombre. Revisa el SQL de perfiles en Supabase.';
-    } finally {
-      this.guardando = false;
-      this.cdr.markForCheck();
-    }
-  }
-
-  async cambiarPrivacidad(clave: ClavePrivacidad, activo: boolean): Promise<void> {
-    if (!this.userId || this.guardando) return;
-    const anterior = this.preferencias[clave];
-    const actualizadas = { ...this.preferencias, [clave]: activo };
-    this.preferencias = actualizadas;
-    this.guardando = true;
-    this.error = '';
-    this.mensaje = '';
-    try {
-      await this.perfilService.guardarPreferencias(this.userId, actualizadas);
-      this.mensaje = 'Preferencias de privacidad guardadas.';
-    } catch {
-      this.preferencias = { ...actualizadas, [clave]: anterior };
-      this.error = 'No se pudo guardar la preferencia. Revisa el SQL de perfiles en Supabase.';
     } finally {
       this.guardando = false;
       this.cdr.markForCheck();
