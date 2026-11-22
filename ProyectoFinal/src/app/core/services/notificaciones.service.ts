@@ -9,6 +9,7 @@ export interface NotificacionRecord {
   type: 'mensaje' | 'evento' | 'publicacion';
   read_at: string | null;
   created_at: string;
+  conversation_id: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -18,7 +19,7 @@ export class NotificacionesService {
   async listar(usuarioId: string): Promise<NotificacionRecord[]> {
     const { data, error } = await this.supabase
       .from('notifications')
-      .select('id, title, body, route, type, read_at, created_at')
+      .select('id, title, body, route, type, read_at, created_at, conversation_id')
       .eq('user_id', usuarioId)
       .order('created_at', { ascending: false })
       .limit(20);
@@ -47,11 +48,22 @@ export class NotificacionesService {
     if (error) throw error;
   }
 
+  async marcarMensajesLeidos(conversationId: string, usuarioId: string): Promise<void> {
+    const { error } = await this.supabase
+      .from('notifications')
+      .update({ read_at: new Date().toISOString() })
+      .eq('user_id', usuarioId)
+      .eq('conversation_id', conversationId)
+      .eq('type', 'mensaje')
+      .is('read_at', null);
+    if (error) throw error;
+  }
+
   escucharNuevas(usuarioId: string, alLlegar: (notificacion: NotificacionRecord) => void): () => void {
     const channel = this.supabase
       .channel(`notificaciones-${usuarioId}`)
       .on('postgres_changes', {
-        event: 'INSERT',
+        event: '*',
         schema: 'public',
         table: 'notifications',
         filter: `user_id=eq.${usuarioId}`

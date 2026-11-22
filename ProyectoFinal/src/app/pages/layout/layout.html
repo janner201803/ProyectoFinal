@@ -57,7 +57,10 @@
               <ul class="notificaciones-lista">
                 @for (n of notificaciones; track n.id) {
                   <li>
-                    <a class="notificacion" [class.sin-leer]="!n.leida" [routerLink]="n.ruta" (click)="abrir(n)">
+                    <a class="notificacion" [class.sin-leer]="!n.leida"
+                      [routerLink]="n.conversationId ? '/chat' : n.ruta"
+                      [queryParams]="n.conversationId ? { conversation: n.conversationId } : null"
+                      (click)="abrir(n)">
                       <span class="notificacion-icono"><app-icono [nombre]="icono(n.tipo)" /></span>
                       <span class="notificacion-texto">
                         <strong>{{ n.titulo }}</strong>
