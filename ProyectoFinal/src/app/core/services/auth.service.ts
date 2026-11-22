@@ -23,7 +23,6 @@ export class AuthService {
     this.nombreEnCache = nombre;
   }
 
-  // REGISTRO
   async registrar(correo: string, password: string) {
 
     const { data, error } = await this.supabase.auth.signUp({
@@ -37,7 +36,6 @@ export class AuthService {
     return data;
   }
 
-  // LOGIN
   async login(correo: string, password: string) {
 
     const { data, error } = await this.supabase.auth.signInWithPassword({
@@ -51,7 +49,6 @@ export class AuthService {
     return data;
   }
 
-  // CERRAR SESIÓN
   async logout() {
 
     const { error } = await this.supabase.auth.signOut();
@@ -62,7 +59,6 @@ export class AuthService {
     this.nombreEnCache = '';
   }
 
-  // OBTENER USUARIO ACTUAL
   async obtenerUsuario() {
 
     const { data, error } = await this.supabase.auth.getUser();
@@ -71,6 +67,36 @@ export class AuthService {
 
     this.correoEnCache = data.user?.email ?? '';
     return data.user;
+  }
+
+  mensajeError(error: unknown): string {
+    const e = (error ?? {}) as { code?: string; message?: string; status?: number };
+
+    switch (e.code) {
+      case 'invalid_credentials':
+        return 'Correo o contraseña incorrectos.';
+      case 'email_not_confirmed':
+        return 'Debes confirmar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.';
+      case 'user_already_exists':
+      case 'email_exists':
+        return 'Este correo ya está registrado. Inicia sesión.';
+      case 'weak_password':
+        return 'La contraseña es muy débil. Usa una más segura.';
+      case 'email_address_invalid':
+      case 'validation_failed':
+        return 'El correo no es válido.';
+      case 'signup_disabled':
+        return 'El registro de nuevas cuentas está deshabilitado.';
+      case 'over_request_rate_limit':
+      case 'over_email_send_rate_limit':
+        return 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.';
+    }
+
+    const mensaje = e.message ?? '';
+    if (mensaje.includes('Failed to fetch') || mensaje.includes('NetworkError')) {
+      return 'No se pudo conectar con el servidor. Revisa tu conexión a internet.';
+    }
+    return mensaje || 'Ocurrió un error inesperado. Inténtalo de nuevo.';
   }
 
 }

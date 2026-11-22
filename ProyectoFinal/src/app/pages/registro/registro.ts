@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -14,6 +14,7 @@ export class Registro {
 
   private authService = inject(AuthService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   correo = '';
   password = '';
@@ -31,19 +32,30 @@ export class Registro {
       return;
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.correo.trim())) {
+      this.error = 'Escribe un correo válido.';
+      return;
+    }
+
     if (this.password.length < 6) {
       this.error = 'La contraseña debe tener mínimo 6 caracteres';
       return;
     }
 
     this.cargando = true;
+    this.cdr.markForCheck();
 
     try {
 
       const data = await this.authService.registrar(
-        this.correo,
+        this.correo.trim(),
         this.password
       );
+
+      if (data.user && data.user.identities?.length === 0) {
+        this.error = 'Este correo ya está registrado. Inicia sesión.';
+        return;
+      }
 
       if (data.session) {
 
@@ -55,13 +67,14 @@ export class Registro {
 
       }
 
-    } catch (error: any) {
+    } catch (error) {
 
-      this.error = error.message;
+      this.error = this.authService.mensajeError(error);
 
     } finally {
 
       this.cargando = false;
+      this.cdr.markForCheck();
     }
   }
 }

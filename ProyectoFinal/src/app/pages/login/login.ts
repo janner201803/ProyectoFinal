@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -14,6 +14,7 @@ export class Login {
 
   private authService = inject(AuthService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   correo = '';
   password = '';
@@ -29,24 +30,31 @@ export class Login {
       return;
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.correo.trim())) {
+      this.error = 'Escribe un correo válido.';
+      return;
+    }
+
     this.cargando = true;
+    this.cdr.markForCheck();
 
     try {
 
       await this.authService.login(
-        this.correo,
+        this.correo.trim(),
         this.password
       );
 
       await this.router.navigate(['/inicio']);
 
-    } catch (error: any) {
+    } catch (error) {
 
-      this.error = error.message;
+      this.error = this.authService.mensajeError(error);
 
     } finally {
 
       this.cargando = false;
+      this.cdr.markForCheck();
     }
   }
 }
