@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
+import { AvatarService } from '../../core/services/avatar.service';
 import { PerfilPreferencias, PerfilService, PublicacionPerfil, ResumenPerfil } from '../../core/services/perfil.service';
 import { Layout } from '../layout/layout';
 import { Icono } from '../icono/icono';
@@ -14,12 +15,15 @@ import { Icono } from '../icono/icono';
 export class Perfil implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly perfilService = inject(PerfilService);
+  private readonly avatarService = inject(AvatarService);
   private readonly cdr = inject(ChangeDetectorRef);
   private userId = '';
 
   correo = this.authService.correoActual;
   nombre = 'Estudiante';
   nombreEditado = '';
+  avatarUrl: string | null = null;
+  subiendoFoto = false;
   editando = false;
   cargando = true;
   guardando = false;
@@ -63,9 +67,10 @@ export class Perfil implements OnInit {
       this.userId = usuario.id;
       this.correo = usuario.email ?? '';
       const nombrePredeterminado = this.nombreDesdeCorreo(this.correo);
-      const [preferencias, actividad] = await Promise.all([
+      const [preferencias, actividad, avatar] = await Promise.all([
         this.perfilService.cargarPreferencias(usuario.id, nombrePredeterminado),
-        this.perfilService.cargarActividad(usuario.id)
+        this.perfilService.cargarActividad(usuario.id),
+        this.avatarService.obtener(usuario.id).catch(() => null)
       ]);
       this.preferencias = preferencias;
       this.nombre = preferencias.display_name || nombrePredeterminado;
@@ -73,6 +78,8 @@ export class Perfil implements OnInit {
       this.nombreEditado = this.nombre;
       this.publicaciones = actividad.publicaciones;
       this.resumenDatos = actividad.resumen;
+      this.avatarUrl = avatar;
+      this.avatarService.establecerActual(usuario.id, avatar);
     } catch {
       this.error = 'No se pudo cargar toda la información del perfil. Verifica que ejecutaste el SQL actualizado en Supabase.';
     } finally {
@@ -113,6 +120,47 @@ export class Perfil implements OnInit {
       this.error = 'No se pudo guardar el nombre. Revisa el SQL de perfiles en Supabase.';
     } finally {
       this.guardando = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  async cambiarFoto(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const archivo = input.files?.[0];
+    input.value = '';
+    if (!archivo || !this.userId || this.subiendoFoto) return;
+
+    this.error = '';
+    this.mensaje = '';
+    this.subiendoFoto = true;
+    this.cdr.markForCheck();
+    try {
+      this.avatarUrl = await this.avatarService.subir(this.userId, this.nombre, archivo);
+      this.mensaje = 'Foto de perfil actualizada.';
+    } catch (error) {
+      this.error = error instanceof Error && error.message.includes('2 MB')
+        ? error.message
+        : 'No se pudo subir la foto. Verifica el SQL y el bucket "avatars" en Supabase.';
+    } finally {
+      this.subiendoFoto = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  async quitarFoto(): Promise<void> {
+    if (!this.userId || !this.avatarUrl || this.subiendoFoto) return;
+    this.error = '';
+    this.mensaje = '';
+    this.subiendoFoto = true;
+    this.cdr.markForCheck();
+    try {
+      await this.avatarService.quitar(this.userId);
+      this.avatarUrl = null;
+      this.mensaje = 'Foto de perfil eliminada.';
+    } catch {
+      this.error = 'No se pudo quitar la foto.';
+    } finally {
+      this.subiendoFoto = false;
       this.cdr.markForCheck();
     }
   }

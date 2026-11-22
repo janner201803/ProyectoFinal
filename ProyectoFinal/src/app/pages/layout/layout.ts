@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { AvatarService } from '../../core/services/avatar.service';
 import { NotificacionRecord, NotificacionesService } from '../../core/services/notificaciones.service';
 import { Icono } from '../icono/icono';
 
@@ -28,6 +29,7 @@ export class Layout implements OnInit, OnDestroy {
   @Input() activo = 'inicio';
 
   private authService = inject(AuthService);
+  private avatarService = inject(AvatarService);
   private notificacionesService = inject(NotificacionesService);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
@@ -48,6 +50,10 @@ export class Layout implements OnInit, OnDestroy {
     { clave: 'mapa', etiqueta: 'Mapa', icono: 'mapa', ruta: '/mapa' },
     { clave: 'perfil', etiqueta: 'Perfil', icono: 'perfil', ruta: '/perfil' }
   ];
+
+  get avatarUrl(): string | null {
+    return this.avatarService.avatarActual;
+  }
 
   get iniciales(): string {
     const partes = this.nombre.split(/\s+/).filter(Boolean);
@@ -109,6 +115,7 @@ export class Layout implements OnInit, OnDestroy {
 
     if (usuario) {
       this.usuarioId = usuario.id;
+      void this.avatarService.cargarActual(usuario.id).then(() => this.cdr.markForCheck());
       this.dejarDeEscuchar = this.notificacionesService.escucharNuevas(usuario.id, (record) => {
         const actualizada = this.aVista(record);
         this.notificaciones = this.combinarNotificaciones([
@@ -174,6 +181,8 @@ export class Layout implements OnInit, OnDestroy {
   async cerrarSesion() {
 
     try {
+
+      this.avatarService.limpiar();
 
       await this.authService.logout();
 

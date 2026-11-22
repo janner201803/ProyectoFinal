@@ -31,13 +31,18 @@ img { display: block; }
   padding: 0 28px 24px;
 }
 
+.avatar-contenedor {
+  position: relative;
+  flex-shrink: 0;
+  margin-top: -48px;
+}
+
 .avatar-grande {
   display: grid;
-  flex-shrink: 0;
   place-items: center;
   width: 96px;
   height: 96px;
-  margin-top: -48px;
+  overflow: hidden;
   border: 5px solid var(--color-white);
   border-radius: 50%;
   background: var(--color-secondary);
@@ -46,6 +51,62 @@ img { display: block; }
   font-size: 30px;
   font-weight: 700;
   box-shadow: 0 6px 16px rgba(44, 62, 80, 0.2);
+}
+
+.avatar-grande img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-editar {
+  position: absolute;
+  right: 0;
+  bottom: 2px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--color-white);
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-white);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.avatar-editar:hover {
+  background: var(--color-primary-dark);
+}
+
+.avatar-editar.ocupado {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.avatar-editar input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.avatar-editar:focus-within {
+  outline: 3px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+.quitar-foto {
+  margin-left: 10px;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.quitar-foto:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
 }
 
 .portada-texto {
@@ -281,6 +342,56 @@ img { display: block; }
 .resumen span {
   color: var(--color-muted);
   font-size: 12px;
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  padding-top: 16px;
+}
+
+.acciones .boton {
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+.boton-neutro {
+  border: 1.5px solid var(--color-line);
+  background: var(--color-white);
+  color: var(--color-text);
+}
+
+.boton-neutro:hover {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+
+.boton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.nombre-input {
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 4px;
+  padding: 0 0 2px;
+  border: 0;
+  border-bottom: 2px solid var(--color-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(22px, 2.6vw, 28px);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.nombre-input:focus {
+  outline: 0;
+  border-bottom-color: var(--color-primary);
+  background: transparent;
 }
 
 @media (max-width: 1200px) {

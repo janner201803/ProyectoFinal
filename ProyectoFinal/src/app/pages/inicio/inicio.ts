@@ -53,11 +53,35 @@ export class Inicio implements OnInit {
   objetos: ObjetoReciente[] = [];
   cargandoObjetos = true;
 
-  actividad = [
-    { texto: 'Tienes 2 mensajes nuevos', icono: 'mensaje', tono: 'azul' },
-    { texto: '1 evento próximo', icono: 'calendario', tono: 'rojo' },
-    { texto: '3 notificaciones', icono: 'campana', tono: 'rojo' }
-  ];
+  private eventosInscritos = 0;
+  private misPerdidos = 0;
+  private nuevosHoy = 0;
+
+  get actividad(): Array<{ texto: string; icono: string; tono: string }> {
+    return [
+      {
+        texto: this.eventosInscritos
+          ? `Estás inscrito en ${this.eventosInscritos} ${this.eventosInscritos === 1 ? 'evento próximo' : 'eventos próximos'}`
+          : 'No tienes eventos próximos.',
+        icono: 'calendario',
+        tono: 'rojo'
+      },
+      {
+        texto: this.misPerdidos
+          ? `Tienes ${this.misPerdidos} ${this.misPerdidos === 1 ? 'objeto perdido activo' : 'objetos perdidos activos'}`
+          : 'No tienes objetos perdidos activos.',
+        icono: 'buscar',
+        tono: 'azul'
+      },
+      {
+        texto: this.nuevosHoy
+          ? `${this.nuevosHoy} ${this.nuevosHoy === 1 ? 'objeto nuevo' : 'notificaciones nuevas'} en las últimas 24 h`
+          : 'Sin objetos nuevos en las últimas 24 h',
+        icono: 'campana',
+        tono: 'rojo'
+      }
+    ];
+  }
 
   get nombre(): string {
     const base = this.correo.split('@')[0] ?? '';
@@ -66,8 +90,6 @@ export class Inicio implements OnInit {
   }
 
   async ngOnInit() {
-    void this.cargarObjetos();
-
     const usuario = await this.authService.obtenerUsuario();
 
     if (usuario?.email) {
@@ -76,8 +98,9 @@ export class Inicio implements OnInit {
 
     if (usuario) {
       this.usuarioId = usuario.id;
-      await this.cargarEventos();
+      await Promise.all([this.cargarObjetos(), this.cargarEventos()]);
     } else {
+      this.cargandoObjetos = false;
       this.cargandoEventos = false;
     }
 
@@ -107,10 +130,12 @@ export class Inicio implements OnInit {
         await this.eventosService.cancelarInscripcion(evento.id, this.usuarioId);
         evento.inscrito = false;
         evento.inscritosTotales = Math.max(0, evento.inscritosTotales - 1);
+        this.eventosInscritos = Math.max(0, this.eventosInscritos - 1);
       } else {
         await this.eventosService.inscribirse(evento.id, this.usuarioId);
         evento.inscrito = true;
         evento.inscritosTotales += 1;
+        this.eventosInscritos += 1;
       }
     } catch (error) {
       this.errorEvento = this.mensajeError(error);
@@ -125,14 +150,16 @@ export class Inicio implements OnInit {
     try {
       const registros = await this.eventosService.listar(this.usuarioId);
       const ahora = Date.now();
-      this.eventos = registros
+      const proximos = registros
         .filter((registro) => new Date(registro.starts_at).getTime() >= ahora)
-        .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
-        .slice(0, 5)
-        .map((registro) => this.eventoAVista(registro));
+        .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
+
+      this.eventosInscritos = proximos.filter((registro) => registro.inscrito).length;
+      this.eventos = proximos.slice(0, 5).map((registro) => this.eventoAVista(registro));
       if (this.eventoActual >= this.eventos.length) this.eventoActual = 0;
     } catch {
       this.eventos = [];
+      this.eventosInscritos = 0;
     } finally {
       this.cargandoEventos = false;
       this.cdr.markForCheck();
@@ -168,9 +195,15 @@ export class Inicio implements OnInit {
   private async cargarObjetos(): Promise<void> {
     try {
       const registros = await this.objetosService.listar();
+      const hace24h = Date.now() - 24 * 60 * 60 * 1000;
+
+      this.misPerdidos = registros.filter((r) => r.user_id === this.usuarioId && r.status === 'Perdido').length;
+      this.nuevosHoy = registros.filter((r) => new Date(r.created_at).getTime() >= hace24h).length;
       this.objetos = registros.slice(0, 2).map((registro) => this.objetoAVista(registro));
     } catch {
       this.objetos = [];
+      this.misPerdidos = 0;
+      this.nuevosHoy = 0;
     } finally {
       this.cargandoObjetos = false;
       this.cdr.markForCheck();

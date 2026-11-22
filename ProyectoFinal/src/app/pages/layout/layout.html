@@ -81,7 +81,13 @@
         </div>
 
         <a class="usuario" routerLink="/perfil">
-          <span class="avatar">{{ iniciales }}</span>
+          <span class="avatar">
+            @if (avatarUrl) {
+              <img [src]="avatarUrl" alt="" />
+            } @else {
+              {{ iniciales }}
+            }
+          </span>
           <span class="usuario-nombre">{{ nombre }}</span>
           <app-icono nombre="abajo" />
         </a>
