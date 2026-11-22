@@ -13,6 +13,7 @@
   <div class="cuerpo">
 
     <section class="paneles">
+
       <article class="panel">
         <header class="panel-cabecera">
           <h2>Próximos Eventos</h2>
@@ -21,33 +22,55 @@
           </button>
         </header>
 
-        @let evento = eventos[eventoActual];
-        <div class="evento">
-          <div class="evento-imagen">
-            <app-icono nombre="calendario" />
-          </div>
-          <div class="evento-info">
-            <h3>{{ evento.titulo }}</h3>
-            <p class="dato"><app-icono nombre="calendario" /> {{ evento.fecha }}</p>
-            <p class="dato"><app-icono nombre="mapa" /> {{ evento.lugar }}</p>
-            <div class="evento-pie">
-              <span class="etiqueta etiqueta-azul">{{ evento.categoria }}</span>
-              <button class="boton boton-primario boton-chico" type="button">Inscribirme</button>
+        @if (cargandoEventos) {
+          <p class="vacio">Cargando eventos…</p>
+        } @else if (eventos.length) {
+          @let evento = eventos[eventoActual];
+          <div class="evento">
+            <div class="evento-imagen">
+              <app-icono nombre="calendario" />
+            </div>
+            <div class="evento-info">
+              <h3>{{ evento.titulo }}</h3>
+              <p class="dato"><app-icono nombre="calendario" /> {{ evento.fecha }}</p>
+              <p class="dato"><app-icono nombre="mapa" /> {{ evento.lugar }}</p>
+              <p class="dato">{{ evento.inscritosTotales }} / {{ evento.cupos }} cupos ocupados</p>
+              <div class="evento-pie">
+                <span class="etiqueta etiqueta-azul">{{ evento.categoria }}</span>
+                <button
+                  class="boton boton-chico"
+                  type="button"
+                  [class.boton-primario]="!evento.inscrito"
+                  [class.boton-inscrito]="evento.inscrito"
+                  [disabled]="evento.procesando || (!evento.inscrito && evento.inscritosTotales >= evento.cupos)"
+                  (click)="alternarInscripcion(evento)"
+                >
+                  {{ evento.procesando ? 'Guardando...' : evento.inscrito ? '✓ Inscrito' : evento.inscritosTotales >= evento.cupos ? 'Sin cupos' : 'Inscribirme' }}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="puntos">
-          @for (e of eventos; track e.titulo; let i = $index) {
-            <button
-              type="button"
-              class="punto"
-              [class.activo]="i === eventoActual"
-              [attr.aria-label]="'Ver evento ' + (i + 1)"
-              (click)="seleccionarEvento(i)"
-            ></button>
+          @if (errorEvento) {
+            <p class="vacio error" role="alert">{{ errorEvento }}</p>
           }
-        </div>
+
+          @if (eventos.length > 1) {
+            <div class="puntos">
+              @for (e of eventos; track e.id; let i = $index) {
+                <button
+                  type="button"
+                  class="punto"
+                  [class.activo]="i === eventoActual"
+                  [attr.aria-label]="'Ver evento ' + (i + 1)"
+                  (click)="seleccionarEvento(i)"
+                ></button>
+              }
+            </div>
+          }
+        } @else {
+          <p class="vacio">No hay eventos próximos.</p>
+        }
       </article>
 
       <article class="panel">
@@ -58,25 +81,38 @@
           </button>
         </header>
 
-        <ul class="objetos">
-          @for (objeto of objetos; track objeto.nombre) {
-            <li class="objeto">
-              <div class="objeto-imagen">
-                <app-icono nombre="buscar" />
-              </div>
-              <div class="objeto-info">
-                <h3>{{ objeto.nombre }}</h3>
-                <p>{{ objeto.detalle }}</p>
-                <p class="dato"><app-icono nombre="reloj" /> {{ objeto.tiempo }}</p>
-              </div>
-              <span class="etiqueta" [class.etiqueta-azul]="objeto.estado === 'Encontrado'" [class.etiqueta-roja]="objeto.estado === 'Perdido'">
-                {{ objeto.estado }}
-              </span>
-              <app-icono nombre="derecha" />
-            </li>
-          }
-        </ul>
+        @if (cargandoObjetos) {
+          <p class="vacio">Cargando publicaciones…</p>
+        } @else if (objetos.length) {
+          <ul class="objetos">
+            @for (objeto of objetos; track objeto.id) {
+              <li class="objeto">
+                <a class="objeto-enlace" [routerLink]="['/objetos-perdidos']" [queryParams]="{ id: objeto.id }">
+                  <div class="objeto-imagen">
+                    @if (objeto.imagen) {
+                      <img [src]="objeto.imagen" [alt]="objeto.nombre" />
+                    } @else {
+                      <app-icono nombre="buscar" />
+                    }
+                  </div>
+                  <div class="objeto-info">
+                    <h3>{{ objeto.nombre }}</h3>
+                    <p>{{ objeto.detalle }}</p>
+                    <p class="dato"><app-icono nombre="reloj" /> {{ objeto.tiempo }}</p>
+                  </div>
+                  <span class="etiqueta" [class.etiqueta-azul]="objeto.estado === 'Encontrado'" [class.etiqueta-roja]="objeto.estado === 'Perdido'">
+                    {{ objeto.estado }}
+                  </span>
+                  <app-icono nombre="derecha" />
+                </a>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="vacio">Aún no hay publicaciones.</p>
+        }
       </article>
+
     </section>
 
     <aside class="derecha">

@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { ObjetoPerdidoRecord, ObjetosPerdidosService } from '../../core/services/objetos-perdidos.service';
@@ -24,8 +25,10 @@ export class ObjetosPerdidos implements OnInit, OnDestroy {
   private readonly auth = inject(AuthService);
   private readonly objetosService = inject(ObjetosPerdidosService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly route = inject(ActivatedRoute);
   private userId = '';
   private userEmail = '';
+  private irAlDestacado = false;
   private dejarDeEscuchar?: () => void;
 
   busqueda = '';
@@ -36,17 +39,13 @@ export class ObjetosPerdidos implements OnInit, OnDestroy {
   mostrarFormulario = false;
   error = '';
   mensaje = '';
+  actualizandoId = '';
+  destacadoId = '';
+  imagenAmpliada: ObjetoPerdidoVista | null = null;
   imagen?: File;
   formulario: { title: string; description: string; status: 'Perdido' | 'Encontrado'; location: string } = {
     title: '', description: '', status: 'Perdido', location: ''
   };
-
-  // Este panel conserva la presentación existente hasta que se implemente el flujo de reclamos.
-  solicitudes = [
-    { titulo: 'Audífonos inalámbricos', detalle: 'Solicitud de devolución', prioridad: 'Alta' },
-    { titulo: 'Calculadora científica', detalle: 'Alguien dice haberla encontrado', prioridad: 'Media' },
-    { titulo: 'Termo azul', detalle: 'Solicitud de reclamo', prioridad: 'Baja' }
-  ];
 
   get visibles(): ObjetoPerdidoVista[] {
     const texto = normalizar(this.busqueda);
@@ -67,6 +66,8 @@ export class ObjetosPerdidos implements OnInit, OnDestroy {
       }
       this.userId = user.id;
       this.userEmail = user.email ?? '';
+      this.destacadoId = this.route.snapshot.queryParamMap.get('id') ?? '';
+      this.irAlDestacado = !!this.destacadoId;
       this.dejarDeEscuchar = this.objetosService.escuchar(() => { void this.cargar(); });
       await this.cargar();
     } catch {
@@ -80,12 +81,49 @@ export class ObjetosPerdidos implements OnInit, OnDestroy {
     this.dejarDeEscuchar?.();
   }
 
+  @HostListener('document:keydown.escape')
+  alPresionarEscape(): void {
+    this.imagenAmpliada = null;
+  }
+
   contar(estado: string): number {
     return this.objetos.filter((objeto) => objeto.status === estado).length;
   }
 
   buscar(valor: string): void { this.busqueda = valor; }
   filtrar(estado: string): void { this.filtro = this.filtro === estado ? '' : estado; }
+
+  ampliar(objeto: ObjetoPerdidoVista): void {
+    if (objeto.image_url) this.imagenAmpliada = objeto;
+  }
+
+  cerrarImagen(): void {
+    this.imagenAmpliada = null;
+  }
+
+  esMio(objeto: ObjetoPerdidoVista): boolean {
+    return !!this.userId && objeto.user_id === this.userId;
+  }
+
+  async marcarEncontrado(objeto: ObjetoPerdidoVista): Promise<void> {
+    if (!this.esMio(objeto) || objeto.status !== 'Perdido' || this.actualizandoId) return;
+    if (!confirm(`¿Marcar "${objeto.title}" como encontrado?`)) return;
+
+    this.error = '';
+    this.mensaje = '';
+    this.actualizandoId = objeto.id;
+    this.cdr.markForCheck();
+    try {
+      await this.objetosService.marcarComoEncontrado(objeto.id);
+      this.mensaje = 'Listo, el objeto quedó marcado como encontrado.';
+      await this.cargar();
+    } catch {
+      this.error = 'No se pudo actualizar el objeto. Verifica la política de actualización en Supabase.';
+    } finally {
+      this.actualizandoId = '';
+      this.cdr.markForCheck();
+    }
+  }
 
   seleccionarImagen(event: Event): void {
     const archivo = (event.target as HTMLInputElement).files?.[0];
@@ -109,6 +147,7 @@ export class ObjetosPerdidos implements OnInit, OnDestroy {
       const nombreAutor = (this.userEmail.split('@')[0] || 'Estudiante').replace(/[._-]/g, ' ');
       await this.objetosService.publicar({
         ...this.formulario,
+        status: 'Perdido',
         title: this.formulario.title.trim(),
         description: this.formulario.description.trim(),
         location: this.formulario.location.trim(),
@@ -133,12 +172,38 @@ export class ObjetosPerdidos implements OnInit, OnDestroy {
     try {
       const records = await this.objetosService.listar();
       this.objetos = records.map((record) => ({ ...record, tiempo: this.tiempoTranscurrido(record.created_at) }));
+      this.cargando = false;
+      this.resaltar();
     } catch {
       this.error = 'No se pudieron cargar las publicaciones. Ejecuta el SQL de objetos perdidos en Supabase.';
     } finally {
       this.cargando = false;
       this.cdr.markForCheck();
     }
+  }
+
+  private resaltar(): void {
+    if (!this.irAlDestacado) return;
+    this.irAlDestacado = false;
+    this.busqueda = '';
+    this.filtro = '';
+    this.cdr.detectChanges();
+
+    const id = this.destacadoId;
+    const buscarTarjeta = (intentos = 0): void => {
+      const el = document.getElementById(`objeto-${id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      if (intentos < 10) setTimeout(() => buscarTarjeta(intentos + 1), 100);
+    };
+    buscarTarjeta();
+
+    setTimeout(() => {
+      this.destacadoId = '';
+      this.cdr.markForCheck();
+    }, 1500);
   }
 
   private tiempoTranscurrido(fecha: string): string {

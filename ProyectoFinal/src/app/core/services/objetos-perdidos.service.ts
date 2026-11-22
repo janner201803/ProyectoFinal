@@ -9,6 +9,7 @@ export interface ObjetoPerdidoRecord {
   location: string;
   image_url: string | null;
   author_name: string;
+  user_id: string;
   created_at: string;
 }
 
@@ -20,7 +21,7 @@ export class ObjetosPerdidosService {
   async listar(): Promise<ObjetoPerdidoRecord[]> {
     const { data, error } = await this.supabase
       .from('lost_items')
-      .select('id, title, description, status, location, image_url, author_name, created_at')
+      .select('id, title, description, status, location, image_url, author_name, user_id, created_at')
       .order('created_at', { ascending: false });
     if (error) throw error;
     return data ?? [];
@@ -63,6 +64,16 @@ export class ObjetosPerdidosService {
       await this.supabase.storage.from(this.bucket).remove([ruta]);
       throw insertError;
     }
+  }
+
+  async marcarComoEncontrado(id: string): Promise<void> {
+    const { data, error } = await this.supabase
+      .from('lost_items')
+      .update({ status: 'Encontrado' })
+      .eq('id', id)
+      .select('id');
+    if (error) throw error;
+    if (!data?.length) throw new Error('Sin permisos para actualizar esta publicación.');
   }
 
   escuchar(alCambiar: () => void): () => void {
