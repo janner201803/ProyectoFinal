@@ -17,6 +17,8 @@ Aplicación web para la comunidad estudiantil de la Universidad Autónoma de Occ
 - Perfil con correo y actividad del usuario.
 - Mapa del campus y consulta de servicios.
 
+La descripción del alcance, las tecnologías y las estructuras de datos está en el [Documento final](DOCUMENTO_FINAL.md).
+
 ## Requisitos
 
 - Node.js compatible con Angular CLI 21 y npm.
@@ -97,5 +99,9 @@ npm run build
 
 Angular genera la aplicación para publicar en `dist/ProyectoFinal/browser`.
 
-## Enlace de la pagina desplegada en Netlify
-https://uaovibe.netlify.app
+## Enlaces de entrega
+
+- **Repositorio GitHub:** [ProyectoFinal](https://github.com/janner201803/ProyectoFinal)
+- **Propuesta gráfica Figma:** pendiente de pegar el enlace al archivo final.
+- **Aplicación desplegada en Netlify:** [uaovibe.netlify.app](https://uaovibe.netlify.app)
+- **Documento final:** [DOCUMENTO_FINAL.md](DOCUMENTO_FINAL.md)
