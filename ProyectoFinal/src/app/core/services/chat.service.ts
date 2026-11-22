@@ -45,6 +45,15 @@ export class ChatService {
     return data;
   }
 
+  async iniciarPorUsuario(otherUserId: string): Promise<string> {
+    const { data, error } = await this.supabase.rpc('start_direct_chat_with_user', {
+      p_other_user_id: otherUserId
+    });
+    if (error) throw error;
+    if (typeof data !== 'string') throw new Error('Supabase no devolvió el identificador de conversación.');
+    return data;
+  }
+
   async enviar(conversationId: string, senderId: string, body: string): Promise<void> {
     const { error } = await this.supabase.from('chat_messages').insert({
       conversation_id: conversationId,

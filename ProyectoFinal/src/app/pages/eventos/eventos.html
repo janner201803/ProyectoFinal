@@ -23,13 +23,15 @@
           }
         </div>
 
-        <button type="button" class="boton boton-primario boton-crear" (click)="mostrarFormulario = !mostrarFormulario">
-          <span class="mas" aria-hidden="true">{{ mostrarFormulario ? '×' : '+' }}</span>
-          {{ mostrarFormulario ? 'Cancelar' : 'Crear evento' }}
-        </button>
+        @if (puedeCrearEventos) {
+          <button type="button" class="boton boton-primario boton-crear" (click)="mostrarFormulario = !mostrarFormulario">
+            <span class="mas" aria-hidden="true">{{ mostrarFormulario ? '×' : '+' }}</span>
+            {{ mostrarFormulario ? 'Cancelar' : 'Crear evento' }}
+          </button>
+        }
       </div>
 
-      @if (mostrarFormulario) {
+      @if (mostrarFormulario && puedeCrearEventos) {
         <form class="formulario-evento" (ngSubmit)="crearEvento()" #formEvento="ngForm">
           <h2>Crear evento</h2>
           <label>Título

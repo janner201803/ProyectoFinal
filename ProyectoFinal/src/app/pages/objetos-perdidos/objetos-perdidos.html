@@ -125,9 +125,10 @@
                     </button>
                   }
                 } @else {
-                  <button type="button" class="boton boton-secundario boton-chico">
+                  <button type="button" class="boton boton-secundario boton-chico"
+                    [disabled]="contactandoId === objeto.id" (click)="contactar(objeto)">
                     <app-icono nombre="chat" />
-                    Contactar
+                    {{ contactandoId === objeto.id ? 'Abriendo...' : 'Contactar' }}
                   </button>
                 }
               </footer>
