@@ -41,7 +41,11 @@
           <li>
             <button type="button" class="conversacion" [class.activa]="c.id === seleccionada" (click)="seleccionar(c)">
               <span class="avatar-chat">
-                {{ c.nombre.charAt(0) }}
+                @if (c.avatarUrl) {
+                  <img [src]="c.avatarUrl" alt="" />
+                } @else {
+                  {{ c.nombre.charAt(0) }}
+                }
                 <i class="punto" [class.en-linea]="c.enLinea"></i>
               </span>
               <span class="conv-texto">
@@ -69,7 +73,11 @@
       } @else if (actual; as conversacion) {
         <header class="cabecera-chat">
           <span class="avatar-chat">
-            {{ conversacion.nombre.charAt(0) }}
+            @if (conversacion.avatarUrl) {
+              <img [src]="conversacion.avatarUrl" alt="" />
+            } @else {
+              {{ conversacion.nombre.charAt(0) }}
+            }
             <i class="punto" [class.en-linea]="conversacion.enLinea"></i>
           </span>
           <div>

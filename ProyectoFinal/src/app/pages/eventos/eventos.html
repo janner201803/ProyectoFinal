@@ -6,14 +6,29 @@
       <h1>Eventos</h1>
       <p class="descripcion">Entérate de las actividades de la universidad e inscríbete en las que te interesen.</p>
     </div>
-    <button type="button" class="boton boton-primario boton-crear" (click)="mostrarFormulario = !mostrarFormulario">
-      {{ mostrarFormulario ? 'Cancelar' : '+ Crear evento' }}
-    </button>
   </header>
 
   <div class="rejilla">
 
     <section class="columna">
+      <div class="herramientas">
+        <div class="filtros" aria-label="Filtrar por categoría">
+          <button type="button" [class.seleccionada]="!filtro" (click)="filtrar('')">
+            Todos <span>{{ eventos.length }}</span>
+          </button>
+          @for (categoria of categorias; track categoria) {
+            <button type="button" [class.seleccionada]="filtro === categoria" (click)="filtrar(categoria)">
+              {{ categoria }} <span>{{ contar(categoria) }}</span>
+            </button>
+          }
+        </div>
+
+        <button type="button" class="boton boton-primario boton-crear" (click)="mostrarFormulario = !mostrarFormulario">
+          <span class="mas" aria-hidden="true">{{ mostrarFormulario ? '×' : '+' }}</span>
+          {{ mostrarFormulario ? 'Cancelar' : 'Crear evento' }}
+        </button>
+      </div>
+
       @if (mostrarFormulario) {
         <form class="formulario-evento" (ngSubmit)="crearEvento()" #formEvento="ngForm">
           <h2>Crear evento</h2>
@@ -45,29 +60,23 @@
         </form>
       }
 
-      <div class="filtros" aria-label="Filtrar por categoría">
-        <button type="button" [class.seleccionada]="!filtro" (click)="filtrar('')">
-          Todos <span>{{ eventos.length }}</span>
-        </button>
-        @for (categoria of categorias; track categoria) {
-          <button type="button" [class.seleccionada]="filtro === categoria" (click)="filtrar(categoria)">
-            {{ categoria }} <span>{{ contar(categoria) }}</span>
-          </button>
-        }
-      </div>
-
       <header class="panel-cabecera">
-        <h2>{{ visibles.length }} eventos próximos</h2>
+        <h2>{{ tituloLista }}</h2>
+        @if (seleccion !== null) {
+          <button type="button" class="limpiar-fecha" (click)="seleccionarDia(seleccion)">Ver todos</button>
+        }
       </header>
 
-      @if (error) { <p class="sin-inscripciones" role="alert">{{ error }}</p> }
-      @if (mensaje) { <p class="sin-inscripciones" role="status">{{ mensaje }}</p> }
+      @if (error) { <p class="sin-inscripciones aviso" role="alert">{{ error }}</p> }
+      @if (mensaje) { <p class="sin-inscripciones aviso" role="status">{{ mensaje }}</p> }
 
       <ul class="lista">
         @if (cargando) {
           <li class="sin-inscripciones">Cargando eventos…</li>
         } @else if (visibles.length === 0) {
-          <li class="sin-inscripciones">No hay eventos próximos para este mes.</li>
+          <li class="sin-inscripciones">
+            {{ seleccion !== null ? 'No hay eventos en esta fecha.' : 'No hay eventos próximos.' }}
+          </li>
         } @else {
           @for (evento of visibles; track evento.id) {
             <li class="evento">
@@ -103,8 +112,15 @@
     <aside class="derecha">
 
       <article class="panel">
-        <header class="panel-cabecera">
+        <header class="panel-cabecera cal-cabecera">
           <h2>{{ nombreMes }}</h2>
+          <div class="cal-nav">
+            @if (!esMesActual) {
+              <button type="button" class="cal-hoy" (click)="irAHoy()">Hoy</button>
+            }
+            <button type="button" class="cal-btn" (click)="cambiarMes(-1)" aria-label="Mes anterior">‹</button>
+            <button type="button" class="cal-btn" (click)="cambiarMes(1)" aria-label="Mes siguiente">›</button>
+          </div>
         </header>
 
         <div class="calendario">
@@ -113,7 +129,15 @@
           }
           @for (dia of dias; track $index) {
             @if (dia) {
-              <span class="dia" [class.con-evento]="esEvento(dia)" [class.hoy]="esHoy(dia)">{{ dia }}</span>
+              <button
+                type="button"
+                class="dia"
+                [class.con-evento]="esEvento(dia)"
+                [class.hoy]="esHoy(dia)"
+                [class.seleccionado]="seleccion === dia"
+                [disabled]="!esEvento(dia)"
+                (click)="seleccionarDia(dia)"
+              >{{ dia }}</button>
             } @else {
               <span class="dia vacio"></span>
             }
@@ -128,7 +152,7 @@
 
         @if (inscritos.length) {
           <ul class="inscritos">
-            @for (evento of inscritos; track evento.titulo) {
+            @for (evento of inscritos; track evento.id) {
               <li>
                 <span class="mini-fecha">{{ evento.dia }} {{ evento.mes }}</span>
                 <div class="inscrito-info">

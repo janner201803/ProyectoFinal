@@ -54,6 +54,14 @@ h1 {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.herramientas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
   margin-bottom: 22px;
 }
 
@@ -228,7 +236,16 @@ h1 {
 }
 
 .boton-crear {
-  flex-shrink: 0;
+  gap: 10px;
+  height: 44px;
+  padding: 0 24px;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.mas {
+  font-size: 20px;
+  line-height: 1;
 }
 
 .formulario-evento {
@@ -309,22 +326,41 @@ h1 {
 .dia {
   display: grid;
   place-items: center;
+  width: 100%;
   aspect-ratio: 1;
+  padding: 0;
   border-radius: 10px;
   font-size: 13px;
   font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+
+button.dia:disabled {
+  cursor: default;
 }
 
 .dia.con-evento {
   background: var(--color-primary-soft);
   color: var(--color-primary);
   font-weight: 700;
+  cursor: pointer;
+}
+
+.dia.con-evento:hover {
+  background: var(--color-primary);
+  color: var(--color-white);
 }
 
 .dia.hoy {
   background: var(--color-secondary);
   color: var(--color-white);
   font-weight: 700;
+}
+
+.dia.seleccionado {
+  background: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: 0 4px 12px rgba(227, 27, 35, 0.28);
 }
 
 .inscritos li {
@@ -371,6 +407,60 @@ h1 {
 .sin-inscripciones {
   color: var(--color-muted);
   font-size: 14px;
+}
+
+.cal-cabecera h2 {
+  font-size: 16px;
+}
+
+.cal-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cal-btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--color-line);
+  border-radius: 50%;
+  color: var(--color-secondary);
+  font-size: 18px;
+  line-height: 1;
+  transition: background 0.15s;
+}
+
+.cal-btn:hover {
+  background: var(--color-secondary-soft);
+}
+
+.cal-hoy {
+  padding: 5px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  color: var(--color-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cal-hoy:hover {
+  background: var(--color-secondary-soft);
+}
+
+.limpiar-fecha {
+  color: var(--color-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.limpiar-fecha:hover {
+  text-decoration: underline;
+}
+
+.aviso {
+  margin-bottom: 14px;
 }
 
 @media (max-width: 1200px) {

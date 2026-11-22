@@ -166,6 +166,13 @@ h1 {
   font-weight: 600;
 }
 
+.avatar-chat img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .punto {
   position: absolute;
   right: 0;

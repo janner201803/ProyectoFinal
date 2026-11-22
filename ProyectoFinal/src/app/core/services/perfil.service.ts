@@ -77,7 +77,7 @@ export class PerfilService {
         titulo: item.title,
         tipo: item.status === 'Encontrado' ? 'Objeto encontrado' : 'Objeto perdido',
         fecha: item.created_at,
-        estado: 'Activa',
+        estado: item.status === 'Encontrado' ? 'Finalizado' : 'Activo',
         icono: 'buscar'
       })),
       ...(eventos.data ?? []).map((evento) => ({

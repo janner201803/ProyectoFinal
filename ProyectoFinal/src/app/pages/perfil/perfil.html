@@ -4,33 +4,74 @@
     <img class="portada-imagen" src="img/campus.webp" alt="" />
 
     <div class="portada-cuerpo">
-      <span class="avatar-grande">{{ iniciales }}</span>
+      <div class="avatar-contenedor">
+        <span class="avatar-grande">
+          @if (cargando) {
+          } @else if (avatarUrl) {
+            <img [src]="avatarUrl" [alt]="'Foto de ' + nombre" />
+          } @else {
+            {{ iniciales }}
+          }
+        </span>
+        <label class="avatar-editar" [class.ocupado]="subiendoFoto" title="Cambiar foto">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+            <circle cx="12" cy="13" r="4" />
+          </svg>
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            [disabled]="subiendoFoto"
+            (change)="cambiarFoto($event)"
+            aria-label="Cambiar foto de perfil"
+          />
+        </label>
+      </div>
 
       <div class="portada-texto">
-        <h1>{{ nombre }}</h1>
+        @if (cargando) {
+          <span class="esqueleto-nombre"></span>
+        } @else if (editando) {
+          <input
+            class="nombre-input"
+            maxlength="80"
+            aria-label="Nombre visible"
+            [value]="nombreEditado"
+            (input)="nombreEditado = $any($event.target).value"
+            (keydown.enter)="guardarNombre()"
+            (keydown.escape)="cancelarEdicion()"
+          />
+        } @else {
+          <h1>{{ nombre }}</h1>
+        }
+
         @if (preferencias.show_email) {
           <p class="correo"><app-icono nombre="mensaje" /> {{ correo || 'Sin correo' }}</p>
         } @else {
           <p class="correo"><app-icono nombre="mensaje" /> Correo oculto por privacidad</p>
         }
         <span class="etiqueta">Estudiante UAO</span>
+        @if (avatarUrl) {
+          <button type="button" class="quitar-foto" [disabled]="subiendoFoto" (click)="quitarFoto()">Quitar foto</button>
+        }
       </div>
 
-      <button type="button" class="boton boton-primario" (click)="editando ? cancelarEdicion() : comenzarEdicion()">
-        {{ editando ? 'Cancelar edición' : 'Editar perfil' }}
-      </button>
+      <div class="acciones">
+        @if (editando) {
+          <button type="button" class="boton boton-primario" [disabled]="guardando" (click)="guardarNombre()">
+            {{ guardando ? 'Guardando...' : 'Guardar' }}
+          </button>
+          <button type="button" class="boton boton-neutro" [disabled]="guardando" (click)="cancelarEdicion()">
+            Cancelar
+          </button>
+        } @else {
+          <button type="button" class="boton boton-primario" (click)="comenzarEdicion()">
+            Editar perfil
+          </button>
+        }
+      </div>
     </div>
   </section>
-
-  @if (editando) {
-    <form class="editor-perfil" (submit)="$event.preventDefault(); guardarNombre()">
-      <label for="nombre-perfil">Nombre visible</label>
-      <input id="nombre-perfil" maxlength="80" [value]="nombreEditado" (input)="nombreEditado = $any($event.target).value" />
-      <button type="submit" class="boton boton-primario" [disabled]="guardando">
-        {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
-      </button>
-    </form>
-  }
 
   @if (error) { <p class="mensaje-perfil error" role="alert">{{ error }}</p> }
   @if (mensaje) { <p class="mensaje-perfil" role="status">{{ mensaje }}</p> }
@@ -71,7 +112,6 @@
     </article>
 
     <aside class="derecha">
-
       <article class="panel">
         <header class="panel-cabecera">
           <h2>Resumen</h2>
@@ -85,28 +125,6 @@
           }
         </ul>
       </article>
-
-      <article class="panel">
-        <header class="panel-cabecera">
-          <h2>Privacidad</h2>
-        </header>
-        <ul class="privacidad">
-          @for (opcion of privacidad; track opcion.titulo) {
-            <li>
-              <div class="privacidad-info">
-                <h3>{{ opcion.titulo }}</h3>
-                <p>{{ opcion.detalle }}</p>
-              </div>
-              <label class="interruptor">
-                <input type="checkbox" [checked]="preferencias[opcion.key]" [disabled]="guardando || cargando"
-                  [attr.aria-label]="opcion.titulo" (change)="cambiarPrivacidad(opcion.key, $any($event.target).checked)" />
-                <span></span>
-              </label>
-            </li>
-          }
-        </ul>
-      </article>
-
     </aside>
 
   </div>

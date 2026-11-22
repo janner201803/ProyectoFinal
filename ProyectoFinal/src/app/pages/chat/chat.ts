@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angula
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
+import { AvatarService } from '../../core/services/avatar.service';
 import { ChatConversationRecord, ChatMessageRecord, ChatService } from '../../core/services/chat.service';
 import { NotificacionesService } from '../../core/services/notificaciones.service';
 import { Layout } from '../layout/layout';
@@ -18,6 +19,7 @@ interface Conversacion {
   id: string;
   otroUsuarioId: string;
   nombre: string;
+  avatarUrl: string | null;
   ultimo: string;
   hora: string;
   sinLeer: number;
@@ -38,12 +40,14 @@ function normalizar(valor: string): string {
 })
 export class Chat implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
+  private readonly avatarService = inject(AvatarService);
   private readonly chatService = inject(ChatService);
   private readonly notificacionesService = inject(NotificacionesService);
   private readonly route = inject(ActivatedRoute);
   private readonly cdr = inject(ChangeDetectorRef);
   private usuarioId = '';
   private onlineIds = new Set<string>();
+  private avatares = new Map<string, string | null>();
   private dejarDeEscucharLista?: () => void;
   private dejarDeEscucharPresencia?: () => void;
   private dejarDeEscucharMensajes?: () => void;
@@ -160,9 +164,23 @@ export class Chat implements OnInit, OnDestroy {
     }
   }
 
+  private async cargarAvatares(records: ChatConversationRecord[]): Promise<void> {
+    const faltantes = records
+      .map((record) => record.other_user_id)
+      .filter((id) => !this.avatares.has(id));
+    if (!faltantes.length) return;
+    try {
+      const nuevos = await this.avatarService.obtenerVarios([...new Set(faltantes)]);
+      nuevos.forEach((url, id) => this.avatares.set(id, url));
+    } catch {
+      // Si falla, se muestran las iniciales
+    }
+  }
+
   private async actualizarConversaciones(seleccionaPrimera: boolean): Promise<void> {
     try {
       const records = await this.chatService.listarConversaciones();
+      await this.cargarAvatares(records);
       const anteriores = new Map(this.conversaciones.map((c) => [c.id, c]));
       this.conversaciones = records.map((record) => this.aConversacion(record, anteriores.get(record.conversation_id)));
       if (!this.conversaciones.some((c) => c.id === this.seleccionada)) {
@@ -209,6 +227,7 @@ export class Chat implements OnInit, OnDestroy {
       id: record.conversation_id,
       otroUsuarioId: record.other_user_id,
       nombre: record.other_name,
+      avatarUrl: this.avatares.get(record.other_user_id) ?? null,
       ultimo: record.last_message || 'Iniciaste una conversación',
       hora: this.formatoLista(record.last_message_at),
       sinLeer: Number(record.unread_count) || 0,
