@@ -58,24 +58,36 @@
           </button>
         </header>
 
-        <ul class="objetos">
-          @for (objeto of objetos; track objeto.nombre) {
-            <li class="objeto">
-              <div class="objeto-imagen">
-                <app-icono nombre="buscar" />
-              </div>
-              <div class="objeto-info">
-                <h3>{{ objeto.nombre }}</h3>
-                <p>{{ objeto.detalle }}</p>
-                <p class="dato"><app-icono nombre="reloj" /> {{ objeto.tiempo }}</p>
-              </div>
-              <span class="etiqueta" [class.etiqueta-azul]="objeto.estado === 'Encontrado'" [class.etiqueta-roja]="objeto.estado === 'Perdido'">
-                {{ objeto.estado }}
-              </span>
-              <app-icono nombre="derecha" />
-            </li>
-          }
-        </ul>
+        @if (cargandoObjetos) {
+          <p class="vacio">Cargando publicaciones…</p>
+        } @else if (objetos.length) {
+          <ul class="objetos">
+            @for (objeto of objetos; track objeto.id) {
+              <li class="objeto">
+                <a class="objeto-enlace" [routerLink]="['/objetos-perdidos']" [queryParams]="{ id: objeto.id }">
+                  <div class="objeto-imagen">
+                    @if (objeto.imagen) {
+                      <img [src]="objeto.imagen" [alt]="objeto.nombre" />
+                    } @else {
+                      <app-icono nombre="buscar" />
+                    }
+                  </div>
+                  <div class="objeto-info">
+                    <h3>{{ objeto.nombre }}</h3>
+                    <p>{{ objeto.detalle }}</p>
+                    <p class="dato"><app-icono nombre="reloj" /> {{ objeto.tiempo }}</p>
+                  </div>
+                  <span class="etiqueta" [class.etiqueta-azul]="objeto.estado === 'Encontrado'" [class.etiqueta-roja]="objeto.estado === 'Perdido'">
+                    {{ objeto.estado }}
+                  </span>
+                  <app-icono nombre="derecha" />
+                </a>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="vacio">Aún no hay publicaciones.</p>
+        }
       </article>
     </section>
 

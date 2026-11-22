@@ -190,6 +190,12 @@ img { display: block; }
   font-size: 26px;
 }
 
+.objeto-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .evento-info {
   display: flex;
   flex: 1;
@@ -275,9 +281,7 @@ img { display: block; }
 }
 
 .objeto {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  display: block;
   padding: 12px 0;
 }
 
@@ -287,6 +291,29 @@ img { display: block; }
 
 .objeto:first-child {
   padding-top: 0;
+}
+
+.objeto:last-child {
+  padding-bottom: 0;
+}
+
+.objeto-enlace {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 10px;
+}
+
+.objeto-enlace:focus-visible {
+  outline: 3px solid var(--color-secondary);
+  outline-offset: 4px;
+}
+
+.objeto-enlace:hover h3 {
+  color: var(--color-secondary);
 }
 
 .objeto-info {
@@ -304,9 +331,32 @@ img { display: block; }
   font-size: 13px;
 }
 
-.objeto > app-icono {
+.objeto-info h3,
+.objeto-info p:not(.dato) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.objeto-enlace .etiqueta {
   flex-shrink: 0;
+  margin-left: auto;
+}
+
+.objeto-enlace > app-icono {
+  flex-shrink: 0;
+  margin-left: -6px;
   font-size: 16px;
+  transition: transform 0.15s;
+}
+
+.objeto-enlace:hover > app-icono {
+  transform: translateX(3px);
+}
+
+.vacio {
+  color: var(--color-muted);
+  font-size: 14px;
 }
 
 .derecha {
@@ -412,7 +462,7 @@ img { display: block; }
     height: 160px;
   }
 
-  .objeto {
+  .objeto-enlace {
     flex-wrap: wrap;
   }
 }

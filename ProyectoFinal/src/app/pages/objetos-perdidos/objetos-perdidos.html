@@ -6,10 +6,6 @@
       <h1>Objetos perdidos</h1>
       <p class="descripcion">Publica lo que perdiste o encontraste y ayuda a otros estudiantes.</p>
     </div>
-    <button type="button" class="boton boton-primario" (click)="mostrarFormulario = !mostrarFormulario">
-      <span class="mas" aria-hidden="true">+</span>
-      {{ mostrarFormulario ? 'Cancelar' : 'Publicar objeto' }}
-    </button>
   </header>
 
   <div class="rejilla">
@@ -48,16 +44,23 @@
       @if (mensaje) { <p class="estado-mensaje" role="status">{{ mensaje }}</p> }
 
       <div class="herramientas">
-        <label class="busqueda">
-          <app-icono nombre="buscar" />
-          <input
-            type="search"
-            [value]="busqueda"
-            (input)="buscar($any($event.target).value)"
-            placeholder="Busca por objeto o lugar"
-            aria-label="Buscar objetos"
-          />
-        </label>
+        <div class="barra-busqueda">
+          <label class="busqueda">
+            <app-icono nombre="buscar" />
+            <input
+              type="search"
+              [value]="busqueda"
+              (input)="buscar($any($event.target).value)"
+              placeholder="Busca por objeto o lugar"
+              aria-label="Buscar objetos"
+            />
+          </label>
+
+          <button type="button" class="boton boton-primario boton-publicar" (click)="mostrarFormulario = !mostrarFormulario">
+            <span class="mas" aria-hidden="true">{{ mostrarFormulario ? '×' : '+' }}</span>
+            {{ mostrarFormulario ? 'Cancelar' : 'Publicar objeto' }}
+          </button>
+        </div>
 
         <div class="filtros" aria-label="Filtrar por estado">
           <button type="button" [class.seleccionada]="!filtro" (click)="filtrar('')">
@@ -81,10 +84,18 @@
       } @else if (visibles.length) {
         <div class="tarjetas">
           @for (objeto of visibles; track objeto.id) {
-            <article class="tarjeta">
+            <article class="tarjeta" [id]="'objeto-' + objeto.id" [class.destacada]="objeto.id === destacadoId">
               <div class="tarjeta-imagen">
                 @if (objeto.image_url) {
-                  <img [src]="objeto.image_url" [alt]="objeto.title" />
+                  <button
+                    type="button"
+                    class="imagen-boton"
+                    (click)="ampliar(objeto)"
+                    [attr.aria-label]="'Ver imagen de ' + objeto.title + ' completa'"
+                  >
+                    <img [src]="objeto.image_url" [alt]="objeto.title" />
+                    <span class="imagen-ampliar" aria-hidden="true">Ver completa</span>
+                  </button>
                 } @else {
                   <app-icono nombre="buscar" />
                 }
@@ -109,10 +120,24 @@
                   <span class="avatar-chico">{{ objeto.author_name.charAt(0) }}</span>
                   {{ objeto.author_name }}
                 </span>
-                <button type="button" class="boton boton-secundario boton-chico">
-                  <app-icono nombre="chat" />
-                  Contactar
-                </button>
+
+                @if (esMio(objeto)) {
+                  @if (objeto.status === 'Perdido') {
+                    <button
+                      type="button"
+                      class="boton boton-secundario boton-chico"
+                      [disabled]="actualizandoId === objeto.id"
+                      (click)="marcarEncontrado(objeto)"
+                    >
+                      {{ actualizandoId === objeto.id ? 'Guardando...' : 'Ya lo encontré' }}
+                    </button>
+                  }
+                } @else {
+                  <button type="button" class="boton boton-secundario boton-chico">
+                    <app-icono nombre="chat" />
+                    Contactar
+                  </button>
+                }
               </footer>
             </article>
           }
@@ -122,32 +147,25 @@
       }
     </section>
 
-    <aside class="derecha">
-      <article class="panel">
-        <header class="panel-cabecera">
-          <h2>Solicitudes pendientes</h2>
-        </header>
-        <ul class="solicitudes">
-          @for (solicitud of solicitudes; track solicitud.titulo) {
-            <li>
-              <div class="solicitud-info">
-                <h3>{{ solicitud.titulo }}</h3>
-                <p>{{ solicitud.detalle }}</p>
-              </div>
-              <span
-                class="prioridad"
-                [class.alta]="solicitud.prioridad === 'Alta'"
-                [class.media]="solicitud.prioridad === 'Media'"
-                [class.baja]="solicitud.prioridad === 'Baja'"
-              >
-                {{ solicitud.prioridad }}
-              </span>
-            </li>
-          }
-        </ul>
-      </article>
-    </aside>
-
   </div>
+
+  @if (imagenAmpliada) {
+    <div class="visor" (click)="cerrarImagen()" role="dialog" aria-modal="true" [attr.aria-label]="imagenAmpliada.title">
+      <button type="button" class="visor-cerrar" (click)="cerrarImagen()" aria-label="Cerrar">×</button>
+      <figure class="visor-contenido" (click)="$event.stopPropagation()">
+        <img [src]="imagenAmpliada.image_url" [alt]="imagenAmpliada.title" />
+        <figcaption>
+          <span
+            class="etiqueta"
+            [class.etiqueta-azul]="imagenAmpliada.status === 'Encontrado'"
+            [class.etiqueta-roja]="imagenAmpliada.status === 'Perdido'"
+          >
+            {{ imagenAmpliada.status }}
+          </span>
+          {{ imagenAmpliada.title }}
+        </figcaption>
+      </figure>
+    </div>
+  }
 
 </app-layout>
