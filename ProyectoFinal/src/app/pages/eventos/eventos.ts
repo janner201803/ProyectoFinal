@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
-import { EventoRecord, EventosService } from '../../core/services/eventos.service';
+import { CORREO_ADMIN_EVENTOS, EventoRecord, EventosService } from '../../core/services/eventos.service';
 import { Layout } from '../layout/layout';
 import { Icono } from '../icono/icono';
 
@@ -39,6 +39,7 @@ export class Eventos implements OnInit, OnDestroy {
   cargando = true;
   error = '';
   mensaje = '';
+  puedeCrearEventos = false;
   mostrarFormulario = false;
   guardandoEvento = false;
   formulario = this.formularioVacio();
@@ -105,6 +106,7 @@ export class Eventos implements OnInit, OnDestroy {
       }
 
       this.usuarioId = usuario.id;
+      this.puedeCrearEventos = usuario.email?.toLowerCase() === CORREO_ADMIN_EVENTOS;
       this.dejarDeEscuchar = this.eventosService.escucharCambios(this.usuarioId, () => {
         void this.cargarEventos();
       });
@@ -188,6 +190,11 @@ export class Eventos implements OnInit, OnDestroy {
   }
 
   async crearEvento(): Promise<void> {
+    if (!this.puedeCrearEventos) {
+      this.mostrarFormulario = false;
+      this.error = `Solo ${CORREO_ADMIN_EVENTOS} puede crear eventos.`;
+      return;
+    }
     if (!this.usuarioId || this.guardandoEvento) return;
     this.error = '';
     this.mensaje = '';
@@ -212,8 +219,7 @@ export class Eventos implements OnInit, OnDestroy {
         starts_at: inicio.toISOString(),
         location: this.formulario.location.trim(),
         category: this.formulario.category.trim(),
-        capacity: capacidad,
-        created_by: this.usuarioId
+        capacity: capacidad
       });
       this.formulario = this.formularioVacio();
       this.mostrarFormulario = false;

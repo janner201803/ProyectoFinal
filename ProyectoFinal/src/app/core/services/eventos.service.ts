@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseClientService } from './supabase-client.service';
 
+export const CORREO_ADMIN_EVENTOS = 'admin@uao.edu.co';
+
 export interface EventoRecord {
   id: string;
   title: string;
@@ -47,9 +49,17 @@ export class EventosService {
     location: string;
     category: string;
     capacity: number;
-    created_by: string;
   }): Promise<void> {
-    const { error } = await this.supabase.from('events').insert({ ...evento, published: true });
+    const { data, error: authError } = await this.supabase.auth.getUser();
+    if (authError || !data.user || data.user.email?.toLowerCase() !== CORREO_ADMIN_EVENTOS) {
+      throw new Error(`Solo ${CORREO_ADMIN_EVENTOS} puede crear eventos.`);
+    }
+
+    const { error } = await this.supabase.from('events').insert({
+      ...evento,
+      published: true,
+      created_by: data.user.id
+    });
     if (error) throw error;
   }
 

@@ -1,7 +1,8 @@
 import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { ChatService } from '../../core/services/chat.service';
 import { ObjetoPerdidoRecord, ObjetosPerdidosService } from '../../core/services/objetos-perdidos.service';
 import { Layout } from '../layout/layout';
 import { Icono } from '../icono/icono';
@@ -26,6 +27,8 @@ export class ObjetosPerdidos implements OnInit, OnDestroy {
   private readonly objetosService = inject(ObjetosPerdidosService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly chatService = inject(ChatService);
   private userId = '';
   private userEmail = '';
   private irAlDestacado = false;
@@ -40,6 +43,7 @@ export class ObjetosPerdidos implements OnInit, OnDestroy {
   error = '';
   mensaje = '';
   actualizandoId = '';
+  contactandoId = '';
   destacadoId = '';
   imagenAmpliada: ObjetoPerdidoVista | null = null;
   imagen?: File;
@@ -121,6 +125,23 @@ export class ObjetosPerdidos implements OnInit, OnDestroy {
       this.error = 'No se pudo actualizar el objeto. Verifica la política de actualización en Supabase.';
     } finally {
       this.actualizandoId = '';
+      this.cdr.markForCheck();
+    }
+  }
+
+  async contactar(objeto: ObjetoPerdidoVista): Promise<void> {
+    if (!this.userId || this.esMio(objeto) || this.contactandoId) return;
+    this.error = '';
+    this.contactandoId = objeto.id;
+    this.cdr.markForCheck();
+    try {
+      const conversacionId = await this.chatService.iniciarPorUsuario(objeto.user_id);
+      const navego = await this.router.navigate(['/chat'], { queryParams: { conversation: conversacionId } });
+      if (!navego) this.error = 'No se pudo abrir el chat. Intenta nuevamente.';
+    } catch {
+      this.error = 'No se pudo iniciar el chat. Verifica que ejecutaste la actualización SQL para contactar desde objetos perdidos.';
+    } finally {
+      this.contactandoId = '';
       this.cdr.markForCheck();
     }
   }
