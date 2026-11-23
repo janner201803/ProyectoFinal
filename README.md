@@ -102,6 +102,6 @@ Angular genera la aplicación para publicar en `dist/ProyectoFinal/browser`.
 ## Enlaces de entrega
 
 - **Repositorio GitHub:** [ProyectoFinal](https://github.com/janner201803/ProyectoFinal)
-- **Propuesta gráfica Figma:** pendiente de pegar el enlace al archivo final.
+- **Propuesta gráfica Figma:** [Uao Vibe - Escritorio](https://www.figma.com/design/A9abcuzCdXNLnqwbCjVd4c/UAO-Vibe-%E2%80%94-Escritorio?node-id=5-714&t=EEx3TwMppKFhQyZe-1)
 - **Aplicación desplegada en Netlify:** [uaovibe.netlify.app](https://uaovibe.netlify.app)
 - **Documento final:** [DOCUMENTO_FINAL.md](DOCUMENTO_FINAL.md)
